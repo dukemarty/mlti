@@ -17,6 +17,11 @@
 #
 
 import sys, os, shutil
+import fileinput, re
+import datetime
+
+templsubst_userinfo_fullname = "Martin Loesch"
+templsubst_userinfo_email = "loesch@ira.uka.de"
 
 template_directory = "/Users/martinloesch/Source/projects/ProjectTemplateInstaller/templates"
 
@@ -29,18 +34,28 @@ class TemplateInstaller:
         full_template_name = os.path.join(template_directory, template)
         return os.path.exists(full_template_name)
 
-    def install(template, target):
+    def installTemplate(template, target):
         full_template_name = os.path.join(template_directory, template)
         full_target_name = os.path.join(target, template)
         if os.path.isfile(full_template_name):
             shutil.copy(full_template_name, target)
+            TemplateInstaller.doSubstitutions(full_target_name)
         else:
             shutil.copytree(full_template_name, full_target_name)
-        print "Missing feature: no text substitution os done"
+            print "Missing feature: no text substitution os done"
     
-
+    def doSubstitutions(target):
+        for line in fileinput.input(target, 1):
+            line = re.sub("!!userinfo-fullname!!", templsubst_userinfo_fullname, line)
+            line = re.sub("!!userinfo-email!!", templsubst_userinfo_email, line)
+            line = re.sub("!!file-name!!", os.path.basename(target), line)
+            line = re.sub("!!actual-date!!", datetime.date.today().isoformat(), line)
+            print line,
+        fileinput.close()
+        
     checkTemplateExistance = staticmethod(checkTemplateExistance)
-    install = staticmethod(install)
+    install = staticmethod(installTemplate)
+    doSubstitutions = staticmethod(doSubstitutions)
 
 
 ## TRUE MAIN PROGRAM

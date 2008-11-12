@@ -2,7 +2,7 @@ doc:
 	@doxygen
 
 mrproper:
-	@rm -f *~ *.pyc
+	@rm -rf *~ *.pyc
 
 realclean: mrproper
 	@rm -rf doc/
