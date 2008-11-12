@@ -31,10 +31,11 @@ class TemplateInstaller:
 
     def install(template, target):
         full_template_name = os.path.join(template_directory, template)
+        full_target_name = os.path.join(target, template)
         if os.path.isfile(full_template_name):
             shutil.copy(full_template_name, target)
         else:
-            shutil.copytree(full_template_name, target)
+            shutil.copytree(full_template_name, full_target_name)
         print "Missing feature: no text substitution os done"
     
 
