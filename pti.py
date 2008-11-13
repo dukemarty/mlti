@@ -20,44 +20,77 @@ import sys, os, shutil
 import fileinput, re
 import datetime
 
-templsubst_userinfo_fullname = "Martin Loesch"
-templsubst_userinfo_email = "loesch@ira.uka.de"
+user_name = "Martin Loesch"
+user_email = "loesch@ira.uka.de"
 
 template_directory = "/Users/martinloesch/Source/projects/ProjectTemplateInstaller/templates"
 
 def printUsage(progname):
     print  "Usage:  ", progname, " templatename [target directory]\n"
 
+## \class TemplateInstaller
+# \brief 
+#
+#
 class TemplateInstaller:
 
-    def checkTemplateExistance(template):
-        full_template_name = os.path.join(template_directory, template)
-        return os.path.exists(full_template_name)
-
-    def installTemplate(template, target):
-        full_template_name = os.path.join(template_directory, template)
-        full_target_name = os.path.join(target, template)
-        if os.path.isfile(full_template_name):
-            shutil.copy(full_template_name, target)
-            TemplateInstaller.doSubstitutions(full_target_name)
-        else:
-            shutil.copytree(full_template_name, full_target_name)
-            print "Missing feature: no text substitution os done"
+    ## \brief substitutions which are performed on the copied templates
+    substitutions = [("!!userinfo-fullname!!", "s", user_name),
+                     ("!!userinfo-email!!", "s", user_email),
+                     ("!!file-name!!", "f", "os.path.basename(target)"),
+                     ("!!actual-date!!", "f", "datetime.date.today().isoformat()")]
     
-    def doSubstitutions(target):
+    def __init__(self, template):
+        self.template_name = template
+        self.full_template_name = os.path.join(template_directory, template)
+        self.full_templsubst_name = os.path.splitext(self.full_template_name)[0] + ".templ"
+        if self.checkTemplateExistence():
+            self.valid = True
+        else:
+            self.valid = False
+        self.updateSubstitutions()
+    
+    def checkTemplateExistence(self):
+        return os.path.exists(self.full_template_name)
+
+    def checkTemplateSubstitutionsExistence(self, template):
+        return os.path.exists(self.full_templsubst_name)
+
+    def updateSubstitutions(self):
+        if os.path.isfile(self.full_templsubst_name):
+            for  l in fileinput.input(self.full_templsubst_name):
+                s = re.split(" *#!# *", l)
+                if len(s)!=3:
+                    raise "Format error in template substitutions file!"
+                if s[1]=="a":
+                    substvalue = raw_input("Insert "+s[0]+" ["+s[2]+"]:  ")
+                    self.substitutions.append((s[0], "s", substvalue))
+                else:
+                    self.substitutions.append((s[0], s[1], s[2].rstrip()))
+            fileinput.close()
+    
+    def install(self, target):
+        full_target_name = os.path.join(target, self.template_name)
+        if os.path.isfile(self.full_template_name):
+            shutil.copy(self.full_template_name, target)
+            self.doSubstitutions(full_target_name)
+        else:
+            shutil.copytree(self.full_template_name, full_target_name)
+            for f in os.listdir(full_target_name):
+                self.doSubstitutions(os.path.join(full_target_name, f))
+    
+    def doSubstitutions(self, target):
         for line in fileinput.input(target, 1):
-            line = re.sub("!!userinfo-fullname!!", templsubst_userinfo_fullname, line)
-            line = re.sub("!!userinfo-email!!", templsubst_userinfo_email, line)
-            line = re.sub("!!file-name!!", os.path.basename(target), line)
-            line = re.sub("!!actual-date!!", datetime.date.today().isoformat(), line)
+            for s in self.substitutions:
+                if s[1]=="s":
+                    line = re.sub(s[0], s[2], line)
+                elif s[1]=="f":
+                    line = re.sub(s[0], eval(s[2]), line)
             print line,
         fileinput.close()
         
-    checkTemplateExistance = staticmethod(checkTemplateExistance)
-    install = staticmethod(installTemplate)
-    doSubstitutions = staticmethod(doSubstitutions)
 
-
+        
 ## TRUE MAIN PROGRAM
 #
 #
@@ -74,9 +107,10 @@ if __name__ == '__main__':
     else:
         targetdir = sys.argv[2]
 
-    if not TemplateInstaller.checkTemplateExistance(templatename):
+    installer = TemplateInstaller(templatename)
+    if not installer.valid:
         print "Sorry, template does not exist!\n"
         exit(2)
         
-    TemplateInstaller.install(templatename, targetdir)
+    installer.install(targetdir)
     
