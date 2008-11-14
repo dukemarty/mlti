@@ -28,17 +28,62 @@ template_directory = "/Users/martinloesch/Source/projects/ProjectTemplateInstall
 def printUsage(progname):
     print  "Usage:  ", progname, " templatename [target directory]\n"
 
+
+## \class SubstitutionItem
+# \brief
+#
+#
+class SubstitutionItem:
+
+    def __init__(self, varname, type, inserttext):
+        self.var = varname
+        self.type = type
+        self.insert = inserttext
+
+
+## \class TemplateSubstitutions
+# \brief
+#
+#
+class TemplateSubstitutions:
+
+    ## \brief list of substitutions which can be applied to a text, initialized with a number of standard substitutions
+    substitution_list = [SubstitutionItem("!!userinfo-fullname!!", "s", user_name),
+                         SubstitutionItem("!!userinfo-email!!", "s", user_email),
+                         SubstitutionItem("!!file-name!!", "f", "os.path.basename(self.resultfilename)"),
+                         SubstitutionItem("!!actual-date!!", "f", "datetime.date.today().isoformat()")]
+
+    def __init__(self, resultfilename=""):
+        self.resultfilename = resultfilename
+    
+    def performSubstitutions(self, text):
+        for s in self.substitution_list:
+            if s.type=="s":
+                text = re.sub(s.var, s.insert, text)
+            elif s.type=="f":
+                text = re.sub(s.var, eval(s.insert), text)
+        return text
+
+    def loadAdditionalSubstitutions(self, filename):
+        for  l in fileinput.input(filename):
+            s = re.split(" *#!# *", l)
+            if len(s)!=3:
+                raise "Format error in template substitutions file!"
+            if s[1]=="a":
+                substvalue = raw_input("Insert "+s[0]+" ["+s[2].rstrip()+"]:  ")
+                self.substitution_list.append(SubstitutionItem(s[0], "s", substvalue.rstrip()))
+            else:
+                self.substitution_list.append(SubstitutionItem(s[0], s[1], s[2].rstrip()))
+        fileinput.close()
+        
+    
 ## \class TemplateInstaller
 # \brief 
 #
 #
 class TemplateInstaller:
 
-    ## \brief substitutions which are performed on the copied templates
-    substitutions = [("!!userinfo-fullname!!", "s", user_name),
-                     ("!!userinfo-email!!", "s", user_email),
-                     ("!!file-name!!", "f", "os.path.basename(target)"),
-                     ("!!actual-date!!", "f", "datetime.date.today().isoformat()")]
+    substitutions = TemplateSubstitutions()
     
     def __init__(self, template):
         self.template_name = template
@@ -58,17 +103,8 @@ class TemplateInstaller:
 
     def updateSubstitutions(self):
         if os.path.isfile(self.full_templsubst_name):
-            for  l in fileinput.input(self.full_templsubst_name):
-                s = re.split(" *#!# *", l)
-                if len(s)!=3:
-                    raise "Format error in template substitutions file!"
-                if s[1]=="a":
-                    substvalue = raw_input("Insert "+s[0]+" ["+s[2]+"]:  ")
-                    self.substitutions.append((s[0], "s", substvalue))
-                else:
-                    self.substitutions.append((s[0], s[1], s[2].rstrip()))
-            fileinput.close()
-    
+            self.substitutions.loadAdditionalSubstitutions(self.full_templsubst_name)
+            
     def install(self, target):
         full_target_name = os.path.join(target, self.template_name)
         if os.path.isfile(self.full_template_name):
@@ -80,12 +116,9 @@ class TemplateInstaller:
                 self.doSubstitutions(os.path.join(full_target_name, f))
     
     def doSubstitutions(self, target):
+        self.substitutions.resultfilename = target
         for line in fileinput.input(target, 1):
-            for s in self.substitutions:
-                if s[1]=="s":
-                    line = re.sub(s[0], s[2], line)
-                elif s[1]=="f":
-                    line = re.sub(s[0], eval(s[2]), line)
+            line = self.substitutions.performSubstitutions(line)
             print line,
         fileinput.close()
         
