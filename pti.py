@@ -16,25 +16,73 @@
 #	       http://wwwiaim.ira.uka.de
 #
 
+## \namespace pti
+# This namespace contains all the core modules for the ProjectTemplateInstaller project.
+
 import sys, os, shutil
 import fileinput, re
 import datetime
 
+## \var user_name
+# Globally used name of user for template substitutions.
 user_name = "Martin Loesch"
+## \var user_email
+# Globally used email address of standard user for template substitutions.
 user_email = "loesch@ira.uka.de"
 
+## \var template_directory
+# Directory where all templates are placed.
 template_directory = "/Users/martinloesch/Source/projects/ProjectTemplateInstaller/templates"
 
+
+## \brief Print usage information to standard output.
 def printUsage(progname):
-    print  "Usage:  ", progname, " templatename [target directory]\n"
+    print  "Usage:  ", progname, " templatename [target_filename [target_directory]]\n"
 
 
+## \class SubstitutionsFileFormatException
+# \brief Exception class for errors in substitution files.
+class SubstitutionsFileFormatException(Exception):
+
+    ## \var cause
+    # cause for the exception
+
+    ## \var linenumber
+    # number of line in the file where the error occured
+    
+    ## \brief Constructor for new exception.
+    #
+    # @param self reference to object
+    # @param cause text explaining the error more detailled
+    # @param linenumber default is line 0, i.e. the first line
+    def __init__(self, cause, linenumber=0):
+        self.cause = cause
+        self.linenumber = linenumber
+
+    ## \brief Convert exception string.
+    def __str__(self):
+        return self.cause + " in line " + self.linenumber
+
+    
 ## \class SubstitutionItem
-# \brief
+# \brief Representation for a single substitution.
 #
-#
+# A substitution in the context of this project has three parts:
+#  -# the pattern which ist substituted (called var for variable name in this context)
+#  -# the type of substitution, we distinct s for simple string substitution, f for a python function call which results in the substitute, and a for a variable which is filled by user input
+#  -# the substitute, basically a string or a function call which provides the string
 class SubstitutionItem:
 
+    ## \var var
+    # pattern which is substituted
+
+    ## \var type
+    # type of substitution (s, f or a)
+
+    ## \var insert
+    # substitute for the pattern
+
+    ## \brief Constructor for new SubstitutionItems
     def __init__(self, varname, type, inserttext):
         self.var = varname
         self.type = type
@@ -42,20 +90,40 @@ class SubstitutionItem:
 
 
 ## \class TemplateSubstitutions
-# \brief
+# \brief Representation for a set of substitutions.
 #
+# This class not only provides a container for substitutions; it also allows to load additional substitutions, and to apply the currently loaded substitutions to a given string.
 #
+# It is also possible to externally set a number of attributes which can then be accessed during the substitutions; all these attributes' names start with provided_... .
 class TemplateSubstitutions:
 
-    ## \brief list of substitutions which can be applied to a text, initialized with a number of standard substitutions
-    substitution_list = [SubstitutionItem("!!userinfo-fullname!!", "s", user_name),
-                         SubstitutionItem("!!userinfo-email!!", "s", user_email),
-                         SubstitutionItem("!!file-name!!", "f", "os.path.basename(self.resultfilename)"),
-                         SubstitutionItem("!!actual-date!!", "f", "datetime.date.today().isoformat()")]
+    ## \var substitution_list
+    # list of substitutions which can be applied to a text, initialized with a number of standard substitutions
 
+    ## \var provided_resultfilename
+    # name of the result file, i.e. if the text to which the substitutions are applied goes into a file, the name of this file
+
+    ## \brief Constructor for new TemplateSubstitutions objects.
+    #
+    # @param resultfilename if possible, the name of the file containing the text which is used in the substitutions can be set here
     def __init__(self, resultfilename=""):
-        self.resultfilename = resultfilename
-    
+        self.substitution_list = [SubstitutionItem("!!userinfo-fullname!!", "s", user_name),
+                                  SubstitutionItem("!!userinfo-email!!", "s", user_email),
+                                  SubstitutionItem("!!file-name!!", "f", "os.path.basename(self.provided_resultfilename)"),
+                                  SubstitutionItem("!!actual-date!!", "f", "datetime.date.today().isoformat()")]
+        self.provided_resultfilename = resultfilename
+
+    ## \brief Set the provided attributes for the substitutions with externally available information.
+    #
+    # This method is best be used with named parameters, so that only the necessary values for the current usage are set.
+    def setExternalInformation(self, resultfilename):
+        self.provided_resultfilename = resultfilename
+        
+    ## \brief Apply the substitutions to a string.
+    #
+    # @param self pointer to object
+    # @param text string where the substitutions shall be done on
+    # @return changed input string
     def performSubstitutions(self, text):
         for s in self.substitution_list:
             if s.type=="s":
@@ -64,11 +132,27 @@ class TemplateSubstitutions:
                 text = re.sub(s.var, eval(s.insert), text)
         return text
 
+    ## \brief Load additional substitutions from file.
+    #
+    # The loaded substitutions are appended to the standard substitutions, but don't replace them!
+    #
+    # If there are problems with the file, an exception is raised to inform the caller about the problem.
+    #
+    # @throw SubstitutionsFileFormatException
+    #
+    # @param self pointer to object
+    # @param filename name of substitutions file
     def loadAdditionalSubstitutions(self, filename):
         for  l in fileinput.input(filename):
             s = re.split(" *#!# *", l)
             if len(s)!=3:
-                raise "Format error in template substitutions file!"
+                lineno = fileinput.filelineno()
+                fileinput.close()
+                raise SubstitutionsFileFormatException("Format error in template substitutions file!", lineno)
+            if s[0]=="":
+                lineno = fileinput.filelineno()
+                fileinput.close()
+                raise SubstitutionsFileFormatException("Template variable empty in template substitutions file!", lineno)
             if s[1]=="a":
                 substvalue = raw_input("Insert "+s[0]+" ["+s[2].rstrip()+"]:  ")
                 self.substitution_list.append(SubstitutionItem(s[0], "s", substvalue.rstrip()))
@@ -78,72 +162,250 @@ class TemplateSubstitutions:
         
     
 ## \class TemplateInstaller
-# \brief 
+# \brief This class provides an installer for prepared templates.
 #
-#
+# Also the substitutions applied to the installed template(s) are managed here.
 class TemplateInstaller:
 
-    substitutions = TemplateSubstitutions()
-    
+    ## \var substitutions
+    # substitutions which are applied to the template
+
+    ## \var candidates
+    # possible template candidates if given name is not uniquely identifying
+
+    ## \var template_name
+    # name of the template (does not contain any additional pathes)
+
+    ## \var full_template_name
+    # full name of template including all path components so that the file can be accessed
+
+    ## \var valid
+    # true if the object is valid and can be used to do an installation of a template, false else
+    #
+    # Reasons for an invalid status can e.g. be that the given template name does not exist.
+
+    ## \brief Constructor for new TemplateInstaller object.
+    #
+    # Template names and pathes are prepared for installation; if template with given name does not exist, but there are templates' names which contain the given name, these are assembled in a candidate list.
+    #
+    # @param self reference to object
+    # @param template (part of) name of template which shall be installed
     def __init__(self, template):
+        self.substitutions = TemplateSubstitutions()
+        self.candidates = []
         self.template_name = template
         self.full_template_name = os.path.join(template_directory, template)
-        self.full_templsubst_name = os.path.splitext(self.full_template_name)[0] + ".templ"
         if self.checkTemplateExistence():
             self.valid = True
+            self.updateSubstitutions()
         else:
             self.valid = False
-        self.updateSubstitutions()
-    
+            self.findCandidateTemplates()
+
+    ## \brief check whether template exists or not
     def checkTemplateExistence(self):
         return os.path.exists(self.full_template_name)
 
-    def checkTemplateSubstitutionsExistence(self, template):
-        return os.path.exists(self.full_templsubst_name)
+    ## \brief Assemble candidate list, i.e. find templates which contain the current template name.
+    def findCandidateTemplates(self):
+        for f in os.listdir(os.path.split(self.full_template_name)[0]):
+            if (os.path.split(f)[1].find(self.template_name)!=-1) and os.path.splitext(f)[1]!=".templ":
+                self.candidates.append(f)
 
+    ## \brief Choose one of the assembled candidates.
+    def chooseCandidate(self, index):
+        if (index < 0) or (index > len(self.candidates)):
+            raise IndexError("Index does not denote an existing candidate.")
+        self.full_template_name = os.path.join(template_directory, self.candidates[index])
+        self.template_name = self.candidates[index]
+        if self.checkTemplateExistence():
+            self.valid = True
+            self.updateSubstitutions()
+        else:
+            self.valid = False
+
+    ## \brief Load additional, template-specific substitutions.
     def updateSubstitutions(self):
-        if os.path.isfile(self.full_templsubst_name):
-            self.substitutions.loadAdditionalSubstitutions(self.full_templsubst_name)
-            
-    def install(self, target):
-        full_target_name = os.path.join(target, self.template_name)
+        full_templsubst_name = os.path.splitext(self.full_template_name)[0] + ".templ"
+        if os.path.isfile(full_templsubst_name):
+            self.substitutions.loadAdditionalSubstitutions(full_templsubst_name)
+
+    ## \brief Installs the chosen template.
+    #
+    # @param self reference to object
+    # @param targetplace location where the template ist copied to
+    # @param targetname file name which is given to the template after copying
+    def install(self, targetplace, targetname):
+        if not self.valid:
+            raise RuntimeError("TemplateInstaller is not in a valid state!")
+        full_target_name = os.path.join(targetplace, targetname)
         if os.path.isfile(self.full_template_name):
-            shutil.copy(self.full_template_name, target)
+            shutil.copy(self.full_template_name, targetplace)
+            os.rename(os.path.join(targetplace, self.template_name), full_target_name)
             self.doSubstitutions(full_target_name)
         else:
             shutil.copytree(self.full_template_name, full_target_name)
             for f in os.listdir(full_target_name):
                 self.doSubstitutions(os.path.join(full_target_name, f))
-    
+
+    ## \brief Let substitutions run over all template copies.
+    #
+    # @param target new name of the template file
     def doSubstitutions(self, target):
-        self.substitutions.resultfilename = target
+        self.substitutions.setExternalInformation(resultfilename=target)
         for line in fileinput.input(target, 1):
             line = self.substitutions.performSubstitutions(line)
             print line,
         fileinput.close()
         
 
-        
-## TRUE MAIN PROGRAM
+## \class CLIforTemplateInstaller
+# \brief Provide a CommandLine-Interface for the TemplateInstaller.
 #
-#
-#
-if __name__ == '__main__':
+# In particular, the choice between different candidates for a not uniquely selected template has to be handled.
+class CLIforTemplateInstaller:
 
+    ## \var targetdir
+    # directory where the template(s) are installed to
+
+    ## \var targetname
+    # name which is assigned to the installed template
+
+    ## \var installer
+    # instance of TemplateInstaller used to install one or more template files
+    
+    ## \brief Constructor new instances.
+    #
+    # @param templatename name or part of name of chosen template
+    # @param targetdirectory directory to install the template in
+    # @param targetname name the installed template shall have
+    def __init__(self, templatename, targetdirectory, targetname):
+        self.targetdir = targetdirectory
+        self.targetname = targetname
+        self.installer = TemplateInstaller(templatename)
+
+    ## \brief Run the installer wrapped in the CLI.
+    #
+    # This method mirrors the standard steps:
+    #  -# check correctness of requested template
+    #  -# install template 
+    def run(self):
+        self.checkTemplateExistance()
+        self.install()
+
+    ## \brief Check for existance of template file(s).
+    #
+    def checkTemplateExistance(self):
+        if not self.installer.valid:
+            if self.installer.candidates!=[]:
+                i = 0
+                for c in self.installer.candidates:
+                    print str(i)+") "+c
+                    i = i + 1
+                print str(i) + ") none"
+                choice = -1
+                while choice<0 or choice>i:
+                    choice = raw_input("Choose one option [none]:  ")
+                    if choice=="":
+                        choice = i
+                    else:
+                        choice = int(choice)
+                if choice<i:
+                    self.installer.chooseCandidate(choice)
+                else:
+                    exit(0)
+            else:
+                print "Sorry, template does not exist!\n"
+                exit(2)
+
+        if not self.installer.valid:
+            print "Sorry, template does not exist!\n"
+            exit(2)
+
+    ## \brief Get integer in a certain range from command line.
+    #
+    # @param self reference to object
+    # @param text command prompt shown to the user
+    # @param lowerbound minimum allowed number
+    # @param upperbound maximum allowed number
+    # @param default default number (if just ENTER is typed)
+    def getSecureInteger(self, text, lowerbound, upperbound, default):
+        choice = -1
+        while choice<lowerbound or choice>upperbound:
+            choice = raw_input(text)
+            if choice=="":
+                choice = default
+            else:
+                choice = int(choice)
+        return choice
+
+    ## \brief Install template to the target directory.
+    def install(self):
+        self.installer.install(self.targetdir, self.targetname)
+        
+## \brief Process command line arguments.
+#
+# Set missing arguments to default values, or exit if not all necessary arguments were given.
+def processCommandlineArguments():
     if sys.argv[1:] == []:
         printUsage(sys.argv[0])
         exit(1)
-
-    templatename = sys.argv[1]
+    else:
+        templatename = sys.argv[1]
+        
     if sys.argv[2:] == []:
+        targetname = templatename
+    else:
+        targetname = sys.argv[2]
+        
+    if sys.argv[3:] == []:
         targetdir = "."
     else:
-        targetdir = sys.argv[2]
+        targetdir = sys.argv[3]
 
-    installer = TemplateInstaller(templatename)
-    if not installer.valid:
-        print "Sorry, template does not exist!\n"
-        exit(2)
-        
-    installer.install(targetdir)
+    return (templatename, targetdir, targetname)
     
+        
+## TRUE MAIN PROGRAM
+#
+## \cond false
+        
+if __name__ == '__main__':
+
+    (templatename, targetdir, targetname) = processCommandlineArguments()
+
+    cliinstaller = CLIforTemplateInstaller(templatename, targetdir, targetname)
+
+    cliinstaller.run()
+    
+#     installer = TemplateInstaller(templatename)
+#     if not installer.valid:
+#         if installer.candidates!=[]:
+#             i = 0
+#             for c in installer.candidates:
+#                 print str(i)+") "+c
+#                 i = i + 1
+#             print str(i) + ") none"
+#             choice = -1
+#             while choice<0 or choice>i:
+#                 choice = raw_input("Choose one option [none]:  ")
+#                 if choice=="":
+#                     choice = i
+#                 else:
+#                     choice = int(choice)
+#             if choice<i:
+#                 installer.chooseCandidate(choice)
+#             else:
+#                 exit(0)
+#         else:
+#             print "Sorry, template does not exist!\n"
+#             exit(2)
+
+#     if not installer.valid:
+#         print "Sorry, template does not exist!\n"
+#         exit(2)
+        
+#     installer.install(targetdir, targetname)
+
+    
+## \endcond

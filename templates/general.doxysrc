@@ -1,0 +1,10 @@
+/*! \if exist !!file-name!! This is -*- C++ -*- \endif
+  \mainpage !!project-name!!
+
+  \image html logo.png
+  \image latex logo.pdf "" width=10cm
+  
+  \section contents Overview      
+
+  \author !!userinfo-fullname!! <!!userinfo-email!!>
+*/	   

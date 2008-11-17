@@ -1,0 +1,12 @@
+/*! \if exist general.doxysrc This is -*- C++ -*- \endif
+  \mainpage ML Template Installer
+  \image html mlti-projecttitle.png
+  \image latex mlti-projecttitle.pdf "" width=5cm
+  
+  \image html mlti-logo.png
+  \image latex mlti-logo.pdf "" width=10cm
+  
+  \section contents Overview      
+
+  \author Martin Loesch <loesch@ira.uka.de>
+*/	   
