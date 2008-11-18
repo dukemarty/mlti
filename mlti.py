@@ -23,21 +23,25 @@ import sys, os, shutil
 import fileinput, re
 import datetime
 
-## \var user_name
+## \var default_user_name
 # Globally used name of user for template substitutions.
-user_name = "Martin Loesch"
-## \var user_email
+default_user_name = "DEFAULTUSERNAME"
+## \var default_user_email
 # Globally used email address of standard user for template substitutions.
-user_email = "loesch@ira.uka.de"
+default_user_email = "DEFAULTUSER@EMAIL"
 
-## \var template_directory
+## \var default_template_directory
 # Directory where all templates are placed.
-template_directory = "/Users/martinloesch/Source/projects/ProjectTemplateInstaller/templates"
+default_template_directory = "/Users/martinloesch/Source/projects/MLTemplateInstaller/templates"
 
 
 ## \brief Print usage information to standard output.
 def printUsage(progname):
-    print  "Usage:  ", progname, " templatename [target_filename [target_directory]]\n"
+    print "Usage:  ", progname, " templatename [target_filename [target_directory]]"
+    print
+    print "  The program tries to access ~/.mltirc - if this file does not exist, you get the"
+    print "  choice to let the program create this file. In it, some user data which is used"
+    print "  in substitutions during the installation of a template."
 
 
 ## \class SubstitutionsFileFormatException
@@ -105,10 +109,14 @@ class TemplateSubstitutions:
 
     ## \brief Constructor for new TemplateSubstitutions objects.
     #
+    # @param username name of the calling user (will be used in substitutions)
+    # @param useremail email address of the calling user (will be used in substitutions)
     # @param resultfilename if possible, the name of the file containing the text which is used in the substitutions can be set here
-    def __init__(self, resultfilename=""):
-        self.substitution_list = [SubstitutionItem("!!userinfo-fullname!!", "s", user_name),
-                                  SubstitutionItem("!!userinfo-email!!", "s", user_email),
+    def __init__(self, username, useremail, resultfilename=""):
+        self.user_name = username
+        self.user_email = useremail
+        self.substitution_list = [SubstitutionItem("!!userinfo-fullname!!", "s", self.user_name),
+                                  SubstitutionItem("!!userinfo-email!!", "s", self.user_email),
                                   SubstitutionItem("!!file-name!!", "f", "os.path.basename(self.provided_resultfilename)"),
                                   SubstitutionItem("!!actual-date!!", "f", "datetime.date.today().isoformat()")]
         self.provided_resultfilename = resultfilename
@@ -191,10 +199,14 @@ class TemplateInstaller:
     # @param self reference to object
     # @param template (part of) name of template which shall be installed
     def __init__(self, template):
-        self.substitutions = TemplateSubstitutions()
+        self.user_name = default_user_name
+        self.user_email = default_user_email
+        self.template_directory = default_template_directory
+        self.paramFileValid = self.loadUserParamFile()
+        self.substitutions = TemplateSubstitutions(self.user_name, self.user_email)
         self.candidates = []
         self.template_name = template
-        self.full_template_name = os.path.join(template_directory, template)
+        self.full_template_name = os.path.join(self.template_directory, template)
         if self.checkTemplateExistence():
             self.valid = True
             self.updateSubstitutions()
@@ -202,6 +214,31 @@ class TemplateInstaller:
             self.valid = False
             self.findCandidateTemplates()
 
+    ## \brief Try to load ~/.mltirc for user-specific parameters.
+    #
+    # @return true if file could be loaded, false else
+    def loadUserParamFile(self):
+        pathtofile = os.path.join(os.path.expanduser("~"), ".mltirc")
+        if os.path.exists(pathtofile):
+            for line in fileinput.input(pathtofile):
+                self.parseParamFileLine(line)
+            fileinput.close()
+            return True
+        else:
+            return False
+
+    ## \brief Parse a single line of the parameter file.
+    #
+    # @param line text which shall be parsed
+    def parseParamFileLine(self, line):
+        parts = line.split("=")
+        if parts[0].strip()=="username":
+            self.user_name = parts[1].strip()
+        elif parts[0].strip()=="useremail":
+            self.user_email = parts[1].strip()
+        elif parts[0].strip()=="template directory":
+            self.template_directory = parts[1].strip()
+            
     ## \brief check whether template exists or not
     def checkTemplateExistence(self):
         return os.path.exists(self.full_template_name)
@@ -213,10 +250,12 @@ class TemplateInstaller:
                 self.candidates.append(f)
 
     ## \brief Choose one of the assembled candidates.
+    #
+    # @param index index of chosen candidate           
     def chooseCandidate(self, index):
         if (index < 0) or (index > len(self.candidates)):
             raise IndexError("Index does not denote an existing candidate.")
-        self.full_template_name = os.path.join(template_directory, self.candidates[index])
+        self.full_template_name = os.path.join(self.template_directory, self.candidates[index])
         self.template_name = self.candidates[index]
         if self.checkTemplateExistence():
             self.valid = True
@@ -290,9 +329,27 @@ class CLIforTemplateInstaller:
     #  -# check correctness of requested template
     #  -# install template 
     def run(self):
+        self.checkForParamFileProblems()
         self.checkTemplateExistance()
         self.install()
 
+    ## \brief Check if param file was found, if not, repare it.
+    def checkForParamFileProblems(self):
+        if not self.installer.paramFileValid:
+            if self.getYesOrNo("Shall ~/.mltirc be created? [Y/n]  "):
+                paramfile = open(os.path.join(os.path.expanduser("~"), ".mltirc"), 'w')
+                name = raw_input("Your name:  ")
+                if name!="":
+                    paramfile.write("username = " + name + "\n")
+                email = raw_input("Your email address:  ")
+                if email!="":
+                    paramfile.write("useremail = " + email + "\n")
+                templatedir = raw_input("Template directory:  ")
+                if templatedir!="":
+                    paramfile.write("template directory = " + templatedir + "\n")
+                paramfile.write("\n")
+                paramfile.close()
+        
     ## \brief Check for existance of template file(s).
     #
     def checkTemplateExistance(self):
@@ -339,6 +396,23 @@ class CLIforTemplateInstaller:
                 choice = int(choice)
         return choice
 
+    ## \brief Get yes or no from command line.
+    #
+    # In the following, yes corresponds to True, and no to False.
+    #
+    # @param text command prompt which is shown to the user
+    # @param default default value if nothing is entered (just enter)
+    # @return true if yes was chosen, false else
+    def getYesOrNo(self, text, default=True):
+        choice = raw_input(text)
+        if choice=="":
+            choice = default
+        if choice==True or choice.lower()=="yes" or choice.lower()=="y":
+            res = True
+        else:
+            res = False
+        return res
+    
     ## \brief Install template to the target directory.
     def install(self):
         self.installer.install(self.targetdir, self.targetname)
