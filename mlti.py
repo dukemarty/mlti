@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # This is -*- Python -*- from nbg -*- coding: latin1 -*-
 #
-##   \file  pti.py
+##   \file  mlti.py
 #    \brief This script installs templates for arbitrary projects or similar by copying data from a template directory and accordingly adapting some predefined variables in the files.
 #
 #    Last Author: Martin Loesch (<loesch@@ira.uka.de>)
@@ -16,8 +16,8 @@
 #	       http://wwwiaim.ira.uka.de
 #
 
-## \namespace pti
-# This namespace contains all the core modules for the ProjectTemplateInstaller project.
+## \namespace mlti
+# This namespace contains all the core modules for the MLTemplateInstaller project.
 
 import sys, os, shutil
 import fileinput, re
@@ -61,7 +61,7 @@ class SubstitutionsFileFormatException(Exception):
 
     ## \brief Convert exception string.
     def __str__(self):
-        return self.cause + " in line " + self.linenumber
+        return self.cause + " in line " + str(self.linenumber)
 
     
 ## \class SubstitutionItem
@@ -375,37 +375,6 @@ if __name__ == '__main__':
     (templatename, targetdir, targetname) = processCommandlineArguments()
 
     cliinstaller = CLIforTemplateInstaller(templatename, targetdir, targetname)
-
     cliinstaller.run()
-    
-#     installer = TemplateInstaller(templatename)
-#     if not installer.valid:
-#         if installer.candidates!=[]:
-#             i = 0
-#             for c in installer.candidates:
-#                 print str(i)+") "+c
-#                 i = i + 1
-#             print str(i) + ") none"
-#             choice = -1
-#             while choice<0 or choice>i:
-#                 choice = raw_input("Choose one option [none]:  ")
-#                 if choice=="":
-#                     choice = i
-#                 else:
-#                     choice = int(choice)
-#             if choice<i:
-#                 installer.chooseCandidate(choice)
-#             else:
-#                 exit(0)
-#         else:
-#             print "Sorry, template does not exist!\n"
-#             exit(2)
-
-#     if not installer.valid:
-#         print "Sorry, template does not exist!\n"
-#         exit(2)
-        
-#     installer.install(targetdir, targetname)
-
     
 ## \endcond

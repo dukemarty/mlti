@@ -1,8 +1,8 @@
-SOURCEFILES=pti.py tests_pti.py
-DOCUFILES=doc-src/src/general.doxysrc
+SOURCEFILES=mlti.py tests_mlti.py
+DOCUFILES=doc-src/src/general.doxysrc doc-src/images/mlti-logo.graffle doc-src/images/mlti-projecttitle.graffle
 
-tests: tests_pti.py
-	./tests_pti.py
+tests: tests_mlti.py
+	./tests_mlti.py
 
 doc: Doxyfile ${SOURCEFILES} ${DOCUFILES}
 	@doxygen

@@ -171,11 +171,11 @@
 					<key>Color</key>
 					<dict>
 						<key>b</key>
-						<string>0.4</string>
+						<string>0.2</string>
 						<key>g</key>
-						<string>0.4</string>
+						<string>0.2</string>
 						<key>r</key>
-						<string>1</string>
+						<string>0.2</string>
 					</dict>
 					<key>GradientColor</key>
 					<dict>
@@ -509,7 +509,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2008-11-17 17:31:09 +0100</string>
+	<string>2008-11-18 17:31:22 +0100</string>
 	<key>Modifier</key>
 	<string>Martin Lösch</string>
 	<key>NotesVisible</key>

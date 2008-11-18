@@ -1,8 +1,8 @@
 #! /usr/bin/python
 # This is -*- Python -*- from nbg -*- coding: latin1 -*-
 #
-##   \file  pti-tests.py
-#    \brief This file contains unit tests for the pti project.
+##   \file  tests_mlti.py
+#    \brief This file contains unit tests for the mlti project.
 #
 #    Last Author: Martin Loesch (loesch@ira.uka.de)
 #    Date of last change: 2008-11-14
@@ -18,14 +18,46 @@
 
 import unittest
 import os, datetime
-from pti import *
+from mlti import *
 
+
+class TestSubstitutionsFileFormatException(unittest.TestCase):
+
+    def suite():
+        tests = ['testConstructor', 'test2str']
+        return unittest.TestSuite(map(TestSubstitutionsFileFormatException, tests))
+    suite = staticmethod(suite)
+    
+    def setUp(self):
+        self.e1 = SubstitutionsFileFormatException("blabla1")
+        self.e2 = SubstitutionsFileFormatException("blabla2", 13)
+        self.e3 = SubstitutionsFileFormatException("blabla3", -123)
+    
+    def testConstructor(self):
+        self.assertEqual(self.e1.cause, "blabla1")
+        self.assertEqual(self.e1.linenumber, 0)
+        self.assertEqual(self.e2.cause, "blabla2")
+        self.assertEqual(self.e2.linenumber, 13)
+        self.assertEqual(self.e3.cause, "blabla3")
+        self.assertEqual(self.e3.linenumber, -123)
+
+    def test2str(self):
+        self.assertEqual(str(self.e1), "blabla1 in line 0")
+        self.assertEqual(str(self.e2), "blabla2 in line 13")
+        self.assertEqual(str(self.e3), "blabla3 in line -123")
+
+        
 class TestTemplateSubstitutionClass(unittest.TestCase):
 
     test_template_file_correct = "testcorrect.templ"
     test_template_file_false1 = "testfalse1.templ"
     test_template_file_false2 = "testfalse2.templ"
-    
+
+    def suite():
+        tests = ['testConstructor', 'testPerformSubstitutions', 'testLoadAdditionalSubstitutions']
+        return unittest.TestSuite(map(TestTemplateSubstitutionClass, tests))
+    suite = staticmethod(suite)
+        
     def setUp(self):
         self.generateTestfiles()
 
@@ -82,8 +114,13 @@ class TestTemplateSubstitutionClass(unittest.TestCase):
 
 class TestTemplateInstallerClass(unittest.TestCase):
 
+    def suite():
+        tests = ['testConstructor']
+        return unittest.TestSuite(map(TestTemplateInstallerClass, tests))
+    suite = staticmethod(suite)
+    
     def testConstructor(self):
-        print "Not implemented yes"
+        print "Not implemented yet"
         # 1. construct unique temporary file, delete it -> name does not exist
         # 2. construct with this file -> should not be valid
         # 3. construct temp file
@@ -97,8 +134,8 @@ class TestTemplateInstallerClass(unittest.TestCase):
 #
 #
 if __name__ == '__main__':
-    print "Performing unit tests for pti.py ...\n"
+    print "Performing unit tests for mlti.py ...\n"
 
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestTemplateSubstitutionClass)
+    alltests = unittest.TestSuite([TestSubstitutionsFileFormatException.suite(), TestTemplateSubstitutionClass.suite(), TestTemplateInstallerClass.suite()])
 
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    unittest.TextTestRunner(verbosity=2).run(alltests)

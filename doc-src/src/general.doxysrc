@@ -1,12 +1,16 @@
 /*! \if exist general.doxysrc This is -*- C++ -*- \endif
   \mainpage ML Template Installer
   \image html mlti-projecttitle.png
-  \image latex mlti-projecttitle.pdf "" width=5cm
+  \image latex mlti-projecttitle.pdf "" width=8cm
   
   \image html mlti-logo.png
-  \image latex mlti-logo.pdf "" width=10cm
+  \image latex mlti-logo.pdf "" width=6cm
   
   \section contents Overview      
 
+  The goal of this project is to provide the means of simple generation of skeleton files for basically every purpose where text-based files are used.
+
+  You can simply gather all your templates in one directory, and it is already possible to install the template into an arbitrary directory. By adding certain patterns into the template, the text substitution facilities can be used to adapt the template to its current application. To further adapt a certain template, special substitutions can be assigned by adding a .templ file (with the same name as the template) which contains substitutions described in a specific format.
+  
   \author Martin Loesch <loesch@ira.uka.de>
 */	   
