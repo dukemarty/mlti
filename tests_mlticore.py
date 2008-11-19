@@ -1,8 +1,8 @@
 #! /usr/bin/python
 # This is -*- Python -*- from nbg -*- coding: latin1 -*-
 #
-##   \file  tests_mlti.py
-#    \brief This file contains unit tests for the mlti project.
+##   \file  tests_mlticore.py
+#    \brief This file contains unit tests for the mlticore module of the mlti project.
 #
 #    Last Author: Martin Loesch (loesch@ira.uka.de)
 #    Date of last change: 2008-11-14
@@ -18,7 +18,7 @@
 
 import unittest
 import os, datetime
-from mlti import *
+from mlticore import *
 
 
 class TestSubstitutionsFileFormatException(unittest.TestCase):
@@ -54,7 +54,7 @@ class TestTemplateSubstitutionClass(unittest.TestCase):
     test_template_file_false2 = "testfalse2.templ"
 
     def suite():
-        tests = ['testConstructor', 'testPerformSubstitutions', 'testLoadAdditionalSubstitutions']
+        tests = ['testConstructor', 'testSetExternalInformation', 'testPerformSubstitutions', 'testLoadAdditionalSubstitutions']
         return unittest.TestSuite(map(TestTemplateSubstitutionClass, tests))
     suite = staticmethod(suite)
         
@@ -88,26 +88,41 @@ class TestTemplateSubstitutionClass(unittest.TestCase):
         os.remove(self.test_template_file_false2)
         
     def testConstructor(self):
-        t1 = TemplateSubstitutions()
-        t2 = TemplateSubstitutions("hallo.txt")
+        t1 = TemplateSubstitutions("myname1", "myemail1")
+        t2 = TemplateSubstitutions("myname2", "myemail2","hallo.txt")
         self.assertEqual(t1.provided_resultfilename, "")
+        self.assertEqual(t1.user_name, "myname1")
+        self.assertEqual(t1.user_email, "myemail1")
         self.assertEqual(t2.provided_resultfilename, "hallo.txt")
+        self.assertEqual(t2.user_name, "myname2")
+        self.assertEqual(t2.user_email, "myemail2")
 
+    def testSetExternalInformation(self):
+        t = TemplateSubstitutions("myname", "andmyemail")
+        self.assertEqual(t.user_name, "myname")
+        self.assertEqual(t.user_email, "andmyemail")
+        self.assertEqual(t.provided_resultfilename, "")
+        t.setExternalInformation(resultfilename="blabla1")
+        self.assertEqual(t.user_name, "myname")
+        self.assertEqual(t.user_email, "andmyemail")
+        self.assertEqual(t.provided_resultfilename, "blabla1")
+        
+        
     def testPerformSubstitutions(self):
-        t = TemplateSubstitutions()
+        t = TemplateSubstitutions("myname", "myemail")
         orig = "Das ist irgend ein blabla Text.\n Irgendwo hier sind Variablen versteckt, wie etwa !!userinfo-fullname!! hähä\n\n"
         res = t.performSubstitutions(orig)
-        self.assertEqual(res, "Das ist irgend ein blabla Text.\n Irgendwo hier sind Variablen versteckt, wie etwa Martin Loesch hähä\n\n")
+        self.assertEqual(res, "Das ist irgend ein blabla Text.\n Irgendwo hier sind Variablen versteckt, wie etwa myname hähä\n\n")
         
     def testLoadAdditionalSubstitutions(self):
-        t = TemplateSubstitutions()
+        t = TemplateSubstitutions("myname", "myemail")
         t.loadAdditionalSubstitutions(self.test_template_file_correct)
         orig = ""
         res = t.performSubstitutions(orig)
         self.assertEqual(res, "")
-        tcorr = TemplateSubstitutions()
-        tfalse1 = TemplateSubstitutions()
-        tfalse2 = TemplateSubstitutions()
+        tcorr = TemplateSubstitutions("myname", "myemail")
+        tfalse1 = TemplateSubstitutions("myname", "myemail")
+        tfalse2 = TemplateSubstitutions("myname", "myemail")
         self.assertRaises(SubstitutionsFileFormatException, tfalse1.loadAdditionalSubstitutions, self.test_template_file_false1)
         self.assertRaises(SubstitutionsFileFormatException, tfalse2.loadAdditionalSubstitutions, self.test_template_file_false2)
         
@@ -115,7 +130,9 @@ class TestTemplateSubstitutionClass(unittest.TestCase):
 class TestTemplateInstallerClass(unittest.TestCase):
 
     def suite():
-        tests = ['testConstructor']
+        tests = ['testConstructor', 'testLoadUserParamFile', 'testCheckTemplateExistance',
+                 'testFindCandidateTemplates', 'testChooseCandidate', 'testUpdateSubstitutions',
+                 'testInstall', 'testDoSubstitutions']
         return unittest.TestSuite(map(TestTemplateInstallerClass, tests))
     suite = staticmethod(suite)
     
@@ -128,7 +145,29 @@ class TestTemplateInstallerClass(unittest.TestCase):
         # 5. construct object with it -> should be valid
         # 6. delete file
 
+    def testLoadUserParamFile(self):
+        print "Not implemented yet"
 
+    def testCheckTemplateExistance(self):
+        print "Not implemented yet"
+
+    def testFindCandidateTemplates(self):
+        print "Not implemented yet"
+
+    def testChooseCandidate(self):
+        print "Not implemented yet"
+
+    def testUpdateSubstitutions(self):
+        print "Not implemented yet"
+
+    def testInstall(self):
+        print "Not implemented yet"
+
+    def testDoSubstitutions(self):
+        print "Not implemented yet"        
+
+        
+        
 ## TRUE MAIN PROGRAM
 #
 #

@@ -4,8 +4,8 @@
 ##   \file  !!file-name!!
 #    \brief Please put your documentation for this file here.
 #
-#    Last Author: !!userinfo-fullname!! (!!userinfo-email!!)
-#    Date of last change: !!actual-date!!
+#    \par Last Author: !!userinfo-fullname!! (!!userinfo-email!!)
+#    \par Date of last change: !!actual-date!!
 #
 #    \author   !!userinfo-fullname!! (!!userinfo-email!!)
 #    \date     !!actual-date!!
@@ -22,7 +22,9 @@
 
 ## TRUE MAIN PROGRAM
 #
-#
-#
+## \cond false
 if __name__ == '__main__':
     print "Testing !!file-name!!\n"
+
+## \endcond
+    
