@@ -113,10 +113,10 @@ class TemplateSubstitutions:
     def __init__(self, username, useremail, resultfilename=""):
         self.user_name = username
         self.user_email = useremail
-        self.substitution_list = [SubstitutionItem("!!userinfo-fullname!!", "s", self.user_name),
-                                  SubstitutionItem("!!userinfo-email!!", "s", self.user_email),
-                                  SubstitutionItem("!!file-name!!", "f", "os.path.basename(self.provided_resultfilename)"),
-                                  SubstitutionItem("!!actual-date!!", "f", "datetime.date.today().isoformat()")]
+        self.substitution_list = {'!!userinfo-fullname!!' : SubstitutionItem("!!userinfo-fullname!!", "s", self.user_name),
+                                  '!!userinfo-email!!' : SubstitutionItem("!!userinfo-email!!", "s", self.user_email),
+                                  '!!file-name!!' : SubstitutionItem("!!file-name!!", "f", "os.path.basename(self.provided_resultfilename)"),
+                                  '!!actual-date!!' : SubstitutionItem("!!actual-date!!", "f", "datetime.date.today().isoformat()")}
         self.provided_resultfilename = resultfilename
 
     ## \brief Set the provided attributes for the substitutions with externally available information.
@@ -132,10 +132,11 @@ class TemplateSubstitutions:
     # @return changed input string
     def performSubstitutions(self, text):
         for s in self.substitution_list:
-            if s.type=="s":
-                text = re.sub(s.var, s.insert, text)
-            elif s.type=="f":
-                text = re.sub(s.var, eval(s.insert), text)
+            sub = self.substitution_list[s]
+            if sub.type=="s":
+                text = re.sub(sub.var, sub.insert, text)
+            elif sub.type=="f":
+                text = re.sub(sub.var, eval(sub.insert), text)
         return text
 
     ## \brief Load additional substitutions from file.
@@ -161,11 +162,24 @@ class TemplateSubstitutions:
                 raise SubstitutionsFileFormatException("Template variable empty in template substitutions file!", lineno)
             if s[1]=="a":
                 substvalue = raw_input("Insert "+s[0]+" ["+s[2].rstrip()+"]:  ")
-                self.substitution_list.append(SubstitutionItem(s[0], "s", substvalue.rstrip()))
+                if s[0] not in self.substitution_list:
+                    self.substitution_list[s[0]] = SubstitutionItem(s[0], "s", substvalue.rstrip())
             else:
-                self.substitution_list.append(SubstitutionItem(s[0], s[1], s[2].rstrip()))
+                if s[0] not in self.substitution_list:
+                    self.substitution_list[s[0]] = SubstitutionItem(s[0], s[1], s[2].rstrip())
         fileinput.close()
-        
+
+    ## \brief
+    #
+    # 
+    def getVarVal(self, varname):
+        if varname in self.substitution_list:
+            if self.substitution_list[varname].type == 'f':
+                return eval(self.substitution_list[varname].insert)
+            else:
+                return self.substitution_list[varname].insert
+        else:
+            return ""
     
 ## \class TemplateInstaller
 # \brief This class provides an installer for prepared templates.
