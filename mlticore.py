@@ -153,9 +153,13 @@ class TemplateSubstitutions:
         for  l in fileinput.input(filename):
             s = re.split(" *#!# *", l)
             if len(s)!=3:
-                lineno = fileinput.filelineno()
-                fileinput.close()
-                raise SubstitutionsFileFormatException("Format error in template substitutions file!", lineno)
+                if  l.strip()!="":
+                    lineno = fileinput.filelineno()
+                    fileinput.close()
+                    raise SubstitutionsFileFormatException("Format error in template substitutions file!", lineno)
+                else:
+                    fileinput.close()
+                    return
             if s[0]=="":
                 lineno = fileinput.filelineno()
                 fileinput.close()
@@ -169,9 +173,11 @@ class TemplateSubstitutions:
                     self.substitution_list[s[0]] = SubstitutionItem(s[0], s[1], s[2].rstrip())
         fileinput.close()
 
-    ## \brief
+    ## \brief Get value of variable of a substitution.
     #
-    # 
+    # @param self reference to object
+    # @param varname name of the variable (i.e. unique substitution identifier)
+    # @return insert value of the substitutions, already evaluated if it is a function, "" if the variable does not exist
     def getVarVal(self, varname):
         if varname in self.substitution_list:
             if self.substitution_list[varname].type == 'f':
@@ -301,6 +307,8 @@ class TemplateInstaller:
     def install(self, targetplace, targetname):
         if not self.valid:
             raise RuntimeError("TemplateInstaller is not in a valid state!")
+        if os.path.splitext(targetname)[1]=="":
+            targetname = targetname + os.path.splitext(self.full_template_name)[1]
         full_target_name = os.path.join(targetplace, targetname)
         if os.path.isfile(self.full_template_name):
             shutil.copy(self.full_template_name, targetplace)

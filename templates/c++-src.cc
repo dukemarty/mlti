@@ -8,7 +8,7 @@
     \author   !!userinfo-fullname!! (<!!userinfo-email!!>)
     \date     !!actual-date!!
     \par Copyright:
-              !!userinfo-fullname!!, Chair Prof. Dillmann (IAIM)\n
+              !nbg-tools-userinfo-fullname!, Chair Prof. Dillmann (IAIM)\n
               Institute for Computer Science and Engineering (CSE)\n
 	      University of Karlsruhe. All rights reserved\n
 	      http://wwwiaim.ira.uka.de
@@ -20,14 +20,7 @@
 /* my includes */
 #include "!!header-name!!"
 
-!!class-name!!::!!class-name!!()
-{
 
-}
-
-!!class-name!!::~!!class-name!!()
-{
-}
 
 
 #if !!file-name!!_test
@@ -36,8 +29,8 @@ int main(int argc, char **argv)
 {
   // This is a module-test block. You can put code here that tests
   // just the contents of this C file, and build it by saying
-  //             make !nbg-module-name!_test
-  // Then, run the resulting executable (!nbg-module-name!_test).
+  //             make !!file-name!!_test
+  // Then, run the resulting executable (!!file-name!!_test).
   // If it works as expected, the module is probably correct. ;-)
 
   fprintf(stderr, "Testing !!file-name!!\n");

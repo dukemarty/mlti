@@ -27,14 +27,41 @@
 # @param upperbound maximum allowed number
 # @param default default number (if just ENTER is typed)
 def getSecureInteger(text, lowerbound, upperbound, default):
-    choice = -1
+    choice = lowerbound - 1
     while choice<lowerbound or choice>upperbound:
         choice = raw_input(text)
         if choice=="":
             choice = default
         else:
-            choice = int(choice)
+            try:
+                choice = int(choice)
+            except (VallueError):
+                choice = lowerbound - 1
     return choice
+
+## \brief Get one or more integers in a certain range from command line.
+#
+# @param text command prompt shown to the user
+# @param lowerbound minimum allowed number
+# @param upperbound maximum allowed number
+# @param default default number (if just ENTER is typed)
+def getSecureIntegers(text, lowerbound, upperbound, default):
+    res = []
+    while res == []:
+        choice = raw_input(text)
+        cands = choice.split()
+        if cands==[]:
+            res.append(default)
+        else:
+            for i in cands:
+                try:
+                    choice = int(i)
+                except (ValueError):
+                    pass
+                else:
+                    if choice>=lowerbound and choice<=upperbound:
+                        res.append(choice)
+    return res
 
 ## \brief Get yes or no from command line.
 #

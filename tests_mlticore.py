@@ -54,7 +54,7 @@ class TestTemplateSubstitutionClass(unittest.TestCase):
     test_template_file_false2 = "testfalse2.templ"
 
     def suite():
-        tests = ['testConstructor', 'testSetExternalInformation', 'testPerformSubstitutions', 'testLoadAdditionalSubstitutions']
+        tests = ['testConstructor', 'testSetExternalInformation', 'testPerformSubstitutions', 'testLoadAdditionalSubstitutions', 'testGetVarVal']
         return unittest.TestSuite(map(TestTemplateSubstitutionClass, tests))
     suite = staticmethod(suite)
         
@@ -125,47 +125,119 @@ class TestTemplateSubstitutionClass(unittest.TestCase):
         tfalse2 = TemplateSubstitutions("myname", "myemail")
         self.assertRaises(SubstitutionsFileFormatException, tfalse1.loadAdditionalSubstitutions, self.test_template_file_false1)
         self.assertRaises(SubstitutionsFileFormatException, tfalse2.loadAdditionalSubstitutions, self.test_template_file_false2)
-        
 
+    def testGetVarVal(self):
+        t = TemplateSubstitutions("myname", "my@email.com", "/org/share/myresfile.ext")
+        self.assertEqual(t.getVarVal("!!userinfo-fullname!!"), "myname")
+        self.assertEqual(t.getVarVal("!!userinfo-email!!"), "my@email.com")
+        self.assertEqual(t.getVarVal("!!file-name!!"), "myresfile.ext")
+
+        
 class TestTemplateInstallerClass(unittest.TestCase):
 
+    templfile_correct1 = "blablacorr1.cc"
+    templtemplfile_correct1 = "blablacorr1.templ"
+    templfile_correct2 = "blablacorr2.cc"
+    filenamepattern_correct = "bla"
+    filenamepattern_false = "zyxw"
+    testtarget1 = "unittesttarget1.cc"
+    
     def suite():
-        tests = ['testConstructor', 'testLoadUserParamFile', 'testCheckTemplateExistance',
-                 'testFindCandidateTemplates', 'testChooseCandidate', 'testUpdateSubstitutions',
-                 'testInstall', 'testDoSubstitutions']
+        tests = ['testConstructor', 'testCheckTemplateExistance',
+                 'testFindCandidateTemplates', 'testChooseCandidate',
+                 'testInstall', 'testDoSubstitutionsUpdateSubstitutions']
         return unittest.TestSuite(map(TestTemplateInstallerClass, tests))
     suite = staticmethod(suite)
-    
-    def testConstructor(self):
-        print "Not implemented yet"
-        # 1. construct unique temporary file, delete it -> name does not exist
-        # 2. construct with this file -> should not be valid
-        # 3. construct temp file
-        # 4. fill file
-        # 5. construct object with it -> should be valid
-        # 6. delete file
 
-    def testLoadUserParamFile(self):
-        print "Not implemented yet"
+    def setUp(self):
+        self.generateTemplFiles()
+        
+    def tearDown(self):
+        self.removeTemplFiles()
+
+    def generateTemplFiles(self):
+        templfile_correct1 = os.path.join(default_template_directory, self.templfile_correct1)
+        tsrc1 = open(templfile_correct1, 'w')
+        tsrc1.write("Foobar template with !!SPECIALSUB1!! \n\nIn here, there is just some !!SPECIALSUB2!! text ...")
+        tsrc1.close()
+        templtemplfile_correct1 = os.path.join(default_template_directory, self.templtemplfile_correct1)
+        ttmpl1 = open(templtemplfile_correct1, 'w')
+        ttmpl1.write("!!SPECIALSUB1!! #!# s #!# FIRST INSERTED TEXT\n!!SPECIALSUB2!!   #!#s#!# SECOND INSERTED TEXT   \n\n")
+        ttmpl1.close()
+        templfile_correct2 = os.path.join(default_template_directory, self.templfile_correct2)
+        tsrc2 = open(templfile_correct2, 'w')
+        tsrc2.write("Foobar template with !!SPECIALSUB1!! \n\nIn here, there is just some !!SPECIALSUB2!! text ...")
+        tsrc2.close()
+
+    def removeTemplFiles(self):
+        os.remove(os.path.join(default_template_directory,self.templfile_correct1))
+        os.remove(os.path.join(default_template_directory,self.templtemplfile_correct1))
+        os.remove(os.path.join(default_template_directory,self.templfile_correct2))
+        
+    def testConstructor(self):
+        ti_correct = TemplateInstaller(self.templfile_correct1)
+        ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)
+        ti_false = TemplateInstaller(self.filenamepattern_false)
+        self.assertEqual(ti_correct.valid, True)
+        self.assertEqual(ti_halfcorrect.valid, False)
+        self.assertNotEqual(ti_halfcorrect.candidates, [])
+        self.assertEqual(ti_false.valid, False)
+        self.assertEqual(ti_false.candidates, [])
 
     def testCheckTemplateExistance(self):
-        print "Not implemented yet"
+        ti_correct = TemplateInstaller(self.templfile_correct1)
+        ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)
+        ti_false = TemplateInstaller(self.filenamepattern_false)
+        self.assertEqual(ti_correct.checkTemplateExistence(), True)
+        self.assertEqual(ti_halfcorrect.checkTemplateExistence(), False)
+        self.assertEqual(ti_false.checkTemplateExistence(), False)
 
     def testFindCandidateTemplates(self):
-        print "Not implemented yet"
+        ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)
+        ti_false = TemplateInstaller(self.filenamepattern_false)
+        self.assertEqual(ti_false.candidates, [])
+        self.assertEqual(ti_halfcorrect.candidates, [self.templfile_correct1, self.templfile_correct2])
 
     def testChooseCandidate(self):
-        print "Not implemented yet"
-
-    def testUpdateSubstitutions(self):
-        print "Not implemented yet"
+        ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)
+        self.assertEqual(ti_halfcorrect.valid, False)
+        self.assertEqual(ti_halfcorrect.template_name, self.filenamepattern_correct)
+        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, -1)
+        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, -10)
+        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, 2)
+        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, 19)
+        ti_halfcorrect.chooseCandidate(0)
+        self.assertEqual(ti_halfcorrect.valid, True)
+        self.assertEqual(ti_halfcorrect.template_name, self.templfile_correct1)
 
     def testInstall(self):
-        print "Not implemented yet"
-
-    def testDoSubstitutions(self):
-        print "Not implemented yet"        
-
+        targetpath = os.path.join(default_template_directory, "unittestdirectory")
+        os.mkdir(targetpath)
+        ti1 = TemplateInstaller(self.templfile_correct1)
+        ti1.install(targetpath, self.testtarget1)
+        file1 = open(os.path.join(targetpath, self.testtarget1))
+        self.assertEqual(file1.readline(), "Foobar template with FIRST INSERTED TEXT \n")
+        file1.readline()
+        self.assertEqual(file1.readline(), "In here, there is just some SECOND INSERTED TEXT text ...")
+        file1.close()
+        os.remove(os.path.join(targetpath, self.testtarget1))
+        os.rmdir(targetpath)
+        
+    def testDoSubstitutionsUpdateSubstitutions(self):
+        ti1 = TemplateInstaller(self.templfile_correct1)
+        ti2 = TemplateInstaller(self.templfile_correct2)
+        ti1.doSubstitutions(os.path.join(default_template_directory,self.templfile_correct1))
+        ti2.doSubstitutions(os.path.join(default_template_directory,self.templfile_correct2))
+        file1 = open(os.path.join(default_template_directory,self.templfile_correct1))
+        self.assertEqual(file1.readline(), "Foobar template with FIRST INSERTED TEXT \n")
+        file1.readline()
+        self.assertEqual(file1.readline(), "In here, there is just some SECOND INSERTED TEXT text ...")
+        file1.close()
+        file2 = open(os.path.join(default_template_directory,self.templfile_correct2))
+        self.assertEqual(file2.readline(), "Foobar template with !!SPECIALSUB1!! \n")
+        file2.readline()
+        self.assertEqual(file2.readline(), "In here, there is just some !!SPECIALSUB2!! text ...")
+        file2.close()
         
         
 ## TRUE MAIN PROGRAM
