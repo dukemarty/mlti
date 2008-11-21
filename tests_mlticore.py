@@ -196,7 +196,7 @@ class TestTemplateInstallerClass(unittest.TestCase):
         ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)
         ti_false = TemplateInstaller(self.filenamepattern_false)
         self.assertEqual(ti_false.candidates, [])
-        self.assertEqual(ti_halfcorrect.candidates, [self.templfile_correct1, self.templfile_correct2])
+        self.assertEqual(ti_halfcorrect.candidates, [(default_template_directory, self.templfile_correct1), (default_template_directory, self.templfile_correct2)])
 
     def testChooseCandidate(self):
         ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)

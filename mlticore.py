@@ -231,12 +231,11 @@ class TemplateInstaller:
     def __init__(self, template):
         self.user_name = default_user_name
         self.user_email = default_user_email
-        self.template_directory = default_template_directory
+        self.template_directories = [default_template_directory]
         self.paramFileValid = self.loadUserParamFile()
         self.substitutions = TemplateSubstitutions(self.user_name, self.user_email)
         self.candidates = []
         self.template_name = template
-        self.full_template_name = os.path.join(self.template_directory, template)
         if self.checkTemplateExistence():
             self.valid = True
             self.updateSubstitutions()
@@ -250,6 +249,7 @@ class TemplateInstaller:
     def loadUserParamFile(self):
         pathtofile = os.path.join(os.path.expanduser("~"), ".mltirc")
         if os.path.exists(pathtofile):
+            self.template_directories = []
             for line in fileinput.input(pathtofile):
                 self.parseParamFileLine(line)
             fileinput.close()
@@ -267,17 +267,22 @@ class TemplateInstaller:
         elif parts[0].strip()=="useremail":
             self.user_email = parts[1].strip()
         elif parts[0].strip()=="template directory":
-            self.template_directory = parts[1].strip()
+            self.template_directories.append(parts[1].strip())
             
-    ## \brief check whether template exists or not
+    ## \brief Check whether template exists or not
     def checkTemplateExistence(self):
-        return os.path.exists(self.full_template_name)
+        for dir in self.template_directories:
+            self.full_template_name = os.path.join(dir, self.template_name)
+            if os.path.exists(self.full_template_name):
+                return True
+        return False
 
     ## \brief Assemble candidate list, i.e. find templates which contain the current template name.
     def findCandidateTemplates(self):
-        for f in os.listdir(os.path.split(self.full_template_name)[0]):
-            if (os.path.split(f)[1].find(self.template_name)!=-1) and os.path.splitext(f)[1]!=".templ":
-                self.candidates.append(f)
+        for dir in self.template_directories:
+            for f in os.listdir(os.path.join(dir,os.path.split(self.template_name)[0])):
+                if (os.path.split(f)[1].find(self.template_name)!=-1) and os.path.splitext(f)[1]!=".templ":
+                    self.candidates.append((dir, f))
 
     ## \brief Choose one of the assembled candidates.
     #
@@ -285,8 +290,7 @@ class TemplateInstaller:
     def chooseCandidate(self, index):
         if (index < 0) or (index > len(self.candidates)):
             raise IndexError("Index does not denote an existing candidate.")
-        self.full_template_name = os.path.join(self.template_directory, self.candidates[index])
-        self.template_name = self.candidates[index]
+        self.template_name = self.candidates[index][1]
         if self.checkTemplateExistence():
             self.valid = True
             self.updateSubstitutions()

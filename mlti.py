@@ -92,7 +92,7 @@ class CLIforTemplateInstaller:
             if self.installer.candidates!=[]:
                 i = 0
                 for c in self.installer.candidates:
-                    print str(i)+") "+c
+                    print str(i)+") "+c[1]
                     i = i + 1
                 print str(i) + ") none"
                 choice = getSecureInteger("Choose one option [none]:  ", 0, i, i)
