@@ -72,7 +72,7 @@ class CLIforTemplateInstaller:
     ## \brief Check if param file was found, if not, repare it.
     def checkForParamFileProblems(self):
         if not self.installer.paramFileValid:
-            if getYesOrNo("Shall ~/.mltirc be created? [Y/n]  "):
+            if getYesOrNo("Shall ~/.mltirc and private template directory ~/.mlti be created? [Y/n]  "):
                 paramfile = open(os.path.join(os.path.expanduser("~"), ".mltirc"), 'w')
                 name = raw_input("Your name:  ")
                 if name!="":
@@ -80,11 +80,12 @@ class CLIforTemplateInstaller:
                 email = raw_input("Your email address:  ")
                 if email!="":
                     paramfile.write("useremail = " + email + "\n")
-                templatedir = raw_input("Template directory:  ")
-                if templatedir!="":
-                    paramfile.write("template directory = " + templatedir + "\n")
+                paramfile.write("template directory = " + os.path.join(os.path.expanduser("~"), ".mlti") + "\n")
+                if getYesOrNo("Use default template directory besides private one? [Y/n]  "):
+                    paramfile.write("template directory = " + default_template_directory + "\n")
                 paramfile.write("\n")
                 paramfile.close()
+                os.mkdir(os.path.join(os.path.expanduser("~"), ".mlti"))
         
     ## \brief Check for existance of template file(s).
     def checkTemplateExistance(self):

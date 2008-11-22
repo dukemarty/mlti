@@ -253,6 +253,8 @@ class TemplateInstaller:
             for line in fileinput.input(pathtofile):
                 self.parseParamFileLine(line)
             fileinput.close()
+            if self.template_directories==[]:
+                self.template_directories.append(default_template_directory)
             return True
         else:
             return False
@@ -279,11 +281,14 @@ class TemplateInstaller:
 
     ## \brief Assemble candidate list, i.e. find templates which contain the current template name.
     def findCandidateTemplates(self):
+        candlist = {}
         for dir in self.template_directories:
             for f in os.listdir(os.path.join(dir,os.path.split(self.template_name)[0])):
                 if (os.path.split(f)[1].find(self.template_name)!=-1) and os.path.splitext(f)[1]!=".templ":
-                    self.candidates.append((dir, f))
-
+                    if f not in candlist:
+                        self.candidates.append((dir, f))
+                        candlist[f] = dir
+                    
     ## \brief Choose one of the assembled candidates.
     #
     # @param index index of chosen candidate           
