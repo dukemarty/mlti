@@ -288,7 +288,16 @@ class TemplateInstaller:
                     if f not in candlist:
                         self.candidates.append((dir, f))
                         candlist[f] = dir
-                    
+
+    ## \brief Get list of actual candidates file names.
+    #
+    # @return list of candidate file names
+    def getCandidateNameList(self):
+        res = []
+        for c in self.candidates:
+            res.append(c[1])
+        return res
+                        
     ## \brief Choose one of the assembled candidates.
     #
     # @param index index of chosen candidate           

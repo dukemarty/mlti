@@ -143,9 +143,9 @@ class TestTemplateInstallerClass(unittest.TestCase):
     testtarget1 = "unittesttarget1.cc"
     
     def suite():
-        tests = ['testConstructor', 'testCheckTemplateExistance',
-                 'testFindCandidateTemplates', 'testChooseCandidate',
-                 'testInstall', 'testDoSubstitutionsUpdateSubstitutions']
+        tests = ['testConstructor', 'testCheckTemplateExistance','testFindCandidateTemplates',
+                 'getGetCandidateNameList', 'testChooseCandidate', 'testInstall',
+                 'testDoSubstitutionsUpdateSubstitutions']
         return unittest.TestSuite(map(TestTemplateInstallerClass, tests))
     suite = staticmethod(suite)
 
@@ -198,6 +198,12 @@ class TestTemplateInstallerClass(unittest.TestCase):
         self.assertEqual(ti_false.candidates, [])
         self.assertEqual(ti_halfcorrect.candidates, [(default_template_directory, self.templfile_correct1), (default_template_directory, self.templfile_correct2)])
 
+    def getGetCandidateNameList(self):
+        ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)
+        ti_false = TemplateInstaller(self.filenamepattern_false)
+        self.assertEqual(ti_false.getCandidateNameList(), [])
+        self.assertEqual(ti_halfcorrect.getCandidateNameList(), [self.templfile_correct1, self.templfile_correct2])
+        
     def testChooseCandidate(self):
         ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)
         self.assertEqual(ti_halfcorrect.valid, False)

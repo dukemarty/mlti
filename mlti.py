@@ -90,10 +90,11 @@ class CLIforTemplateInstaller:
     ## \brief Check for existance of template file(s).
     def checkTemplateExistance(self):
         if not self.installer.valid:
-            if self.installer.candidates!=[]:
+            cands = self.installer.getCandidateNameList()
+            if cands!=[]:
                 i = 0
-                for c in self.installer.candidates:
-                    print str(i)+") "+c[1]
+                for c in cands:
+                    print str(i) + ") " + c
                     i = i + 1
                 print str(i) + ") none"
                 choice = getSecureInteger("Choose one option [none]:  ", 0, i, i)
