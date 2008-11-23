@@ -97,9 +97,9 @@ class CLIforTemplateInstaller:
                     print str(i) + ") " + c
                     i = i + 1
                 print str(i) + ") none"
-                choice = getSecureInteger("Choose one option [none]:  ", 0, i, i)
-                if choice<i:
-                    self.installer.chooseCandidate(choice)
+                choices = getSecureIntegers("Choose at least one option [none]:  ", 0, i, i)
+                if i not in choices:
+                    self.installer.chooseCandidate(choices)
                 else:
                     exit(0)
             else:

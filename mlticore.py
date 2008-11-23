@@ -4,8 +4,8 @@
 ##   \file  mlticore.py
 #    \brief This file contains all parts of mlti-core, i.e. all components which actually make up the template substitution system.
 #
-#    \par Last Author: Martin Loesch (loesch@@ira.uka.de)
-#    \par Date of last change: 2008-11-18
+#    \par Last Author: Martin Loesch (<loesch@@ira.uka.de>)
+#    \par Date of last change: 23.11.08
 #
 #    \author   Martin Loesch (loesch@ira.uka.de)
 #    \date     2008-11-18
@@ -165,8 +165,8 @@ class TemplateSubstitutions:
                 fileinput.close()
                 raise SubstitutionsFileFormatException("Template variable empty in template substitutions file!", lineno)
             if s[1]=="a":
-                substvalue = raw_input("Insert "+s[0]+" ["+s[2].rstrip()+"]:  ")
                 if s[0] not in self.substitution_list:
+                    substvalue = raw_input("Insert "+s[0]+" ["+s[2].rstrip()+"]:  ")
                     self.substitution_list[s[0]] = SubstitutionItem(s[0], "s", substvalue.rstrip())
             else:
                 if s[0] not in self.substitution_list:
@@ -234,14 +234,14 @@ class TemplateInstaller:
         self.template_directories = [default_template_directory]
         self.paramFileValid = self.loadUserParamFile()
         self.substitutions = TemplateSubstitutions(self.user_name, self.user_email)
-        self.candidates = []
-        self.template_name = template
-        if self.checkTemplateExistence():
+#        self.candidates = []
+        self.template_name = {template:""}
+        if self.checkTemplateExistence(template):
             self.valid = True
             self.updateSubstitutions()
         else:
             self.valid = False
-            self.findCandidateTemplates()
+            self.findCandidateTemplates(template)
 
     ## \brief Try to load ~/.mltirc for user-specific parameters.
     #
@@ -272,19 +272,25 @@ class TemplateInstaller:
             self.template_directories.append(parts[1].strip())
             
     ## \brief Check whether template exists or not
-    def checkTemplateExistence(self):
+    #
+    # @param templatename name of the template which is checked
+    # @return true if the template exists somewhere in the template directory(ies), false else
+    def checkTemplateExistence(self, templatename):
         for dir in self.template_directories:
-            self.full_template_name = os.path.join(dir, self.template_name)
-            if os.path.exists(self.full_template_name):
+            self.template_name[templatename] = os.path.join(dir, templatename)
+            if os.path.exists(self.template_name[templatename]):
                 return True
         return False
 
     ## \brief Assemble candidate list, i.e. find templates which contain the current template name.
-    def findCandidateTemplates(self):
+    #
+    # @param pattern pattern for which to find candidates
+    def findCandidateTemplates(self, pattern):
         candlist = {}
+        self.candidates = []
         for dir in self.template_directories:
-            for f in os.listdir(os.path.join(dir,os.path.split(self.template_name)[0])):
-                if (os.path.split(f)[1].find(self.template_name)!=-1) and os.path.splitext(f)[1]!=".templ":
+            for f in os.listdir(os.path.join(dir,os.path.split(pattern)[0])):
+                if (os.path.split(f)[1].find(pattern)!=-1) and os.path.splitext(f)[1]!=".templ":
                     if f not in candlist:
                         self.candidates.append((dir, f))
                         candlist[f] = dir
@@ -301,21 +307,23 @@ class TemplateInstaller:
     ## \brief Choose one of the assembled candidates.
     #
     # @param index index of chosen candidate           
-    def chooseCandidate(self, index):
-        if (index < 0) or (index > len(self.candidates)):
-            raise IndexError("Index does not denote an existing candidate.")
-        self.template_name = self.candidates[index][1]
-        if self.checkTemplateExistence():
-            self.valid = True
-            self.updateSubstitutions()
-        else:
-            self.valid = False
+    def chooseCandidate(self, indices):
+        self.template_name = {}
+        for index in indices:
+            if (index < 0) or (index > len(self.candidates)):
+                raise IndexError("Index does not denote an existing candidate.")
+            if self.checkTemplateExistence(self.candidates[index][1]):
+                self.valid = True
+                self.updateSubstitutions()
+            else:
+                self.valid = False
 
     ## \brief Load additional, template-specific substitutions.
     def updateSubstitutions(self):
-        full_templsubst_name = os.path.splitext(self.full_template_name)[0] + ".templ"
-        if os.path.isfile(full_templsubst_name):
-            self.substitutions.loadAdditionalSubstitutions(full_templsubst_name)
+        for templ in self.template_name:
+            full_templsubst_name = os.path.splitext(self.template_name[templ])[0] + ".templ"
+            if os.path.isfile(full_templsubst_name):
+                self.substitutions.loadAdditionalSubstitutions(full_templsubst_name)
 
     ## \brief Installs the chosen template.
     #
@@ -325,17 +333,22 @@ class TemplateInstaller:
     def install(self, targetplace, targetname):
         if not self.valid:
             raise RuntimeError("TemplateInstaller is not in a valid state!")
-        if os.path.splitext(targetname)[1]=="":
-            targetname = targetname + os.path.splitext(self.full_template_name)[1]
-        full_target_name = os.path.join(targetplace, targetname)
-        if os.path.isfile(self.full_template_name):
-            shutil.copy(self.full_template_name, targetplace)
-            os.rename(os.path.join(targetplace, self.template_name), full_target_name)
-            self.doSubstitutions(full_target_name)
-        else:
-            shutil.copytree(self.full_template_name, full_target_name)
-            for f in os.listdir(full_target_name):
-                self.doSubstitutions(os.path.join(full_target_name, f))
+        installed_extensions = []
+        for templ in self.template_name:
+            if os.path.splitext(targetname)[1]=="":
+                full_target_name = os.path.join(targetplace, targetname + os.path.splitext(templ)[1])
+            else:
+                full_target_name = os.path.join(targetplace, targetname)
+            if os.path.splitext(full_target_name) not in installed_extensions:
+                installed_extensions.append(os.path.splitext(full_target_name))
+                if os.path.isfile(self.template_name[templ]):
+                    shutil.copy(self.template_name[templ], targetplace)
+                    os.rename(os.path.join(targetplace, templ), full_target_name)
+                    self.doSubstitutions(full_target_name)
+                else:
+                    shutil.copytree(self.template_name[templ], full_target_name)
+                    for f in os.listdir(full_target_name):
+                        self.doSubstitutions(os.path.join(full_target_name, f))
 
     ## \brief Let substitutions run over all template copies.
     #

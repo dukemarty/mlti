@@ -4,8 +4,8 @@
 ##   \file  tests_mlticore.py
 #    \brief This file contains unit tests for the mlticore module of the mlti project.
 #
-#    Last Author: Martin Loesch (loesch@ira.uka.de)
-#    Date of last change: 2008-11-14
+#    Last Author: Martin Loesch (<loesch@@ira.uka.de>)
+#    Date of last change: 23.11.08
 #
 #    \author   Martin Loesch (loesch@ira.uka.de)
 #    \date     2008-11-14
@@ -188,9 +188,9 @@ class TestTemplateInstallerClass(unittest.TestCase):
         ti_correct = TemplateInstaller(self.templfile_correct1)
         ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)
         ti_false = TemplateInstaller(self.filenamepattern_false)
-        self.assertEqual(ti_correct.checkTemplateExistence(), True)
-        self.assertEqual(ti_halfcorrect.checkTemplateExistence(), False)
-        self.assertEqual(ti_false.checkTemplateExistence(), False)
+        self.assertEqual(ti_correct.checkTemplateExistence(self.templfile_correct1), True)
+        self.assertEqual(ti_halfcorrect.checkTemplateExistence(self.filenamepattern_correct), False)
+        self.assertEqual(ti_false.checkTemplateExistence(self.filenamepattern_false), False)
 
     def testFindCandidateTemplates(self):
         ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)
@@ -207,14 +207,14 @@ class TestTemplateInstallerClass(unittest.TestCase):
     def testChooseCandidate(self):
         ti_halfcorrect = TemplateInstaller(self.filenamepattern_correct)
         self.assertEqual(ti_halfcorrect.valid, False)
-        self.assertEqual(ti_halfcorrect.template_name, self.filenamepattern_correct)
-        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, -1)
-        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, -10)
-        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, 2)
-        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, 19)
-        ti_halfcorrect.chooseCandidate(0)
+        self.assertEqual(ti_halfcorrect.template_name, {self.filenamepattern_correct : os.path.join(default_template_directory, self.filenamepattern_correct)})
+        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, [-1])
+        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, [-10])
+        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, [2])
+        self.assertRaises(IndexError, ti_halfcorrect.chooseCandidate, [19])
+        ti_halfcorrect.chooseCandidate([0])
         self.assertEqual(ti_halfcorrect.valid, True)
-        self.assertEqual(ti_halfcorrect.template_name, self.templfile_correct1)
+        self.assertEqual(ti_halfcorrect.template_name, {self.templfile_correct1 : os.path.join(default_template_directory, self.templfile_correct1)})
 
     def testInstall(self):
         targetpath = os.path.join(default_template_directory, "unittestdirectory")
