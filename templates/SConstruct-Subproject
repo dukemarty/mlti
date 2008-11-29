@@ -1,0 +1,26 @@
+# -*- python -*-
+#
+# Last Author: !!userinfo-fullname!! (!!userinfo-email!!)
+# Date of last change: !!actual-date!!
+#
+# Author: !!userinfo-fullname!! (!!userinfo-email!!)
+# Date: !!actual-date!!
+# Copyright:
+#              !!userinfo-fullname!!, Chair Prof. Dillmann (IAIM)\n
+#              Institute for Computer Science and Engineering (CSE)\n
+#	       University of Karlsruhe. All rights reserved\n
+#	       http://wwwiaim.ira.uka.de
+#
+
+bgtoolspath = '/Users/martinloesch/Source/projects/newbgtools/bgtools'
+
+project_cc_flags = '-c -Wall -Wno-non-virtual-dtor -Wno-reorder -MD -fno-common'
+project_ld_flags = ''
+
+system_libraries = ['gcc', 'System', 'stdc++', 'SystemStubs']
+
+SConscript('SConscript', exports={'BGTOOLS' : bgtoolspath,
+                                  'MYCCFLAGS' : project_cc_flags,
+                                  'MYLDFLAGS' : project_ld_flags,
+                                  'MYLIBS' : system_libraries })
+
