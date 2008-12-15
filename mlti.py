@@ -5,7 +5,7 @@
 #    \brief This script installs templates for arbitrary projects or similar by copying data from a template directory and accordingly adapting some predefined variables in the files.
 #
 #    \par Last Author: Martin Loesch (<loesch@@ira.uka.de>)
-#    \par Date of last change: 12.11.08
+#    \par Date of last change: 15.12.08
 #
 #    \author   Martin Loesch (<loesch@@ira.uka.de>)
 #    \date     12.11.08
@@ -69,6 +69,15 @@ class CLIforTemplateInstaller:
         self.checkTemplateExistance()
         self.install()
 
+    ## \brief Print list of all available templates.
+    # 
+    def printFullTemplateList(self):
+        allTemplates = self.installer.getFullTemplateList()
+        i = 1
+        for templ in allTemplates:
+            print " " + str(i) + ")  " + templ
+            i = i + 1
+        
     ## \brief Check if param file was found, if not, repare it.
     def checkForParamFileProblems(self):
         if not self.installer.paramFileValid:
@@ -118,6 +127,10 @@ class CLIforTemplateInstaller:
 #
 # Set missing arguments to default values, or exit if not all necessary arguments were given.
 def processCommandlineArguments():
+    for param in sys.argv:
+        if param=="-l":
+            return ("", "", "")
+
     if sys.argv[1:] == []:
         printUsage(sys.argv[0])
         exit(1)
@@ -146,6 +159,9 @@ if __name__ == '__main__':
     (templatename, targetdir, targetname) = processCommandlineArguments()
 
     cliinstaller = CLIforTemplateInstaller(templatename, targetdir, targetname)
-    cliinstaller.run()
+    if templatename != "":
+        cliinstaller.run()
+    else:
+        allTemplates = cliinstaller.printFullTemplateList()
     
 ## \endcond

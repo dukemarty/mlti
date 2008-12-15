@@ -582,7 +582,7 @@ RECURSIVE              = NO
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
 EXCLUDE                = doc \
-		       	 tests_mlti.py \
+		       	 tests_mltihelpers.py \
 			 tests_mlticore.py
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 

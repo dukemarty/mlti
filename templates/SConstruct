@@ -20,7 +20,7 @@ env.Append(BUILDERS = {'DoxygenDoc' : docbuilder})
 
 bgtoolspath = '/org/opt/bgtools'
 
-project_cc_flags = '-c -Wall -Wno-non-virtual-dtor -Wno-reorder -MD -fno-common'
+project_cc_flags = '-Wall -Wno-non-virtual-dtor -Wno-reorder -fno-common'
 project_ld_flags = ''
 
 system_libraries = ['gcc', 'System', 'stdc++', 'SystemStubs']
@@ -62,7 +62,7 @@ SConscript(subproject_scripts, exports={'BGTOOLS' : bgtoolspath,
                                      LIBPATH = library_paths,
                                      LIBS = libraries_program,
                                      CCFLAGS = project_cc_flags,
-                                     LDFLAGS = project_ld_flags)
+                                     LINKFLAGS = project_ld_flags)
 
 
 env.DoxygenDoc('docu', 'Doxyfile')

@@ -12,7 +12,7 @@
 #	       http://wwwiaim.ira.uka.de
 #
 
-bgtoolspath = '/Users/martinloesch/Source/projects/newbgtools/bgtools'
+bgtoolspath = '/org/opt/bgtools'
 
 project_cc_flags = '-c -Wall -Wno-non-virtual-dtor -Wno-reorder -MD -fno-common'
 project_ld_flags = ''

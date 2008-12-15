@@ -5,7 +5,7 @@
 #    \brief This file contains all parts of mlti-core, i.e. all components which actually make up the template substitution system.
 #
 #    \par Last Author: Martin Loesch (<loesch@@ira.uka.de>)
-#    \par Date of last change: 23.11.08
+#    \par Date of last change: 15.12.08
 #
 #    \author   Martin Loesch (loesch@ira.uka.de)
 #    \date     2008-11-18
@@ -199,8 +199,8 @@ class TemplateInstaller:
     ## \var user_email
     # email address of user which will be used for substitutions
 
-    ## \var template_directory
-    # directory which is searched for templates
+    ## \var template_directories
+    # directories which is searched for templates
 
     ## \var paramFileValid
     # flag whether a parameter file was found (and could be loaded) = true, or if not (= false)
@@ -213,9 +213,6 @@ class TemplateInstaller:
 
     ## \var template_name
     # name of the template (does not contain any additional pathes)
-
-    ## \var full_template_name
-    # full name of template including all path components so that the file can be accessed
 
     ## \var valid
     # true if the object is valid and can be used to do an installation of a template, false else
@@ -234,7 +231,6 @@ class TemplateInstaller:
         self.template_directories = [default_template_directory]
         self.paramFileValid = self.loadUserParamFile()
         self.substitutions = TemplateSubstitutions(self.user_name, self.user_email)
-#        self.candidates = []
         self.template_name = {template:""}
         if self.checkTemplateExistence(template):
             self.valid = True
@@ -306,7 +302,7 @@ class TemplateInstaller:
                         
     ## \brief Choose one of the assembled candidates.
     #
-    # @param index index of chosen candidate           
+    # @param indices one or more indices of chosen candidate
     def chooseCandidate(self, indices):
         self.template_name = {}
         for index in indices:
@@ -325,6 +321,17 @@ class TemplateInstaller:
             if os.path.isfile(full_templsubst_name):
                 self.substitutions.loadAdditionalSubstitutions(full_templsubst_name)
 
+    ## \brief Get full list of all available templates.
+    #
+    # @return
+    def getFullTemplateList(self):
+        res = []
+        for dir in self.template_directories:
+            for f in os.listdir(os.path.join(dir, os.path.split(self.template_name.keys()[0])[0])):
+                if os.path.splitext(f)[1]!=".templ":
+                    res.append(f)
+        return res
+                
     ## \brief Installs the chosen template.
     #
     # @param self reference to object
