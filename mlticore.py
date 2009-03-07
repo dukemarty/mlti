@@ -5,7 +5,7 @@
 #    \brief This file contains all parts of mlti-core, i.e. all components which actually make up the template substitution system.
 #
 #    \par Last Author: Martin Loesch (<loesch@@ira.uka.de>)
-#    \par Date of last change: 15.12.08
+#    \par Date of last change: 07.03.09
 #
 #    \author   Martin Loesch (loesch@ira.uka.de)
 #    \date     2008-11-18
@@ -286,7 +286,7 @@ class TemplateInstaller:
         self.candidates = []
         for dir in self.template_directories:
             for f in os.listdir(os.path.join(dir,os.path.split(pattern)[0])):
-                if (os.path.split(f)[1].find(pattern)!=-1) and os.path.splitext(f)[1]!=".templ":
+                if (os.path.split(f)[1].lower().find(pattern)!=-1) and os.path.splitext(f)[1]!=".templ":
                     if f not in candlist:
                         self.candidates.append((dir, f))
                         candlist[f] = dir
