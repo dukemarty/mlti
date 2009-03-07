@@ -27,7 +27,11 @@ from mlticore import *
 
 ## \brief Print usage information to standard output.
 def printUsage(progname):
-    print "Usage:  ", progname, " templatename [target_filename [target_directory]]"
+    print "Usage:   ", os.path.split(progname)[1], " templatename [target_filename [target_directory]]"
+    print "         ", os.path.split(progname)[1], " -l"
+    print
+    print "Options:"
+    print "          -l  Print complete list of available templates to standard out."
     print
     print "  The program tries to access ~/.mltirc - if this file does not exist, you get the"
     print "  choice to let the program create this file. In it, some user data which is used"
