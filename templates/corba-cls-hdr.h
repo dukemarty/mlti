@@ -21,7 +21,7 @@
 #define !!header-define-name!!_H
 
 /* system includes */
-#include <nbgtools.h>
+#include <string>
 #include <nbgcorba_impl.h>
 
 /* my includes */

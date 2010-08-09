@@ -24,7 +24,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION (!!class-name!!);
 
 
-void !!class-name!!:setUp(void)
+void !!class-name!!::setUp(void)
 {
 }
 

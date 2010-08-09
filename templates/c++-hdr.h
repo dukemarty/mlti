@@ -21,7 +21,7 @@
 #define !!header-define-name!!_H
 
 /* system includes */
-#include <bgtools.h>
+#include <string>
 
 /* my includes */
 /* (none) */

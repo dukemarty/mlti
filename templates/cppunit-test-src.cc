@@ -11,7 +11,7 @@
               !!userinfo-fullname!!, Chair Prof. Dillmann (IAIM)\n
               Institute for Computer Science and Engineering (CSE)\n
 	      University of Karlsruhe. All rights reserved\n
-	      http://his.anthropomatik.kit.edu
+	      http://wwwiaim.ira.uka.de
 */
 
 /* system includes */
@@ -21,6 +21,21 @@
 #include "!!header-name!!"
 
 
+CPPUNIT_TEST_SUITE_REGISTRATION(!!class-name!!);
+
+
+void !!class-name!!::setUp(void)
+{
+}
+
+void !!class-name!!::tearDown(void)
+{
+}
+
+void !!class-name!!::MyNewTest(void)
+{
+
+}
 
 
 #if !!file-base-name!!_test

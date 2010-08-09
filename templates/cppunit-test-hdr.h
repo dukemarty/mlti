@@ -24,7 +24,9 @@
 #include <string>
 
 /* my includes */
-/* (none) */
+#include <cppunit/TestFixture.h>
+#include <cppunit/extensions/HelperMacros.h>
+
 
 /*!
   \class !!class-name!!
@@ -33,13 +35,18 @@
 
 */
 class !!class-name!! {
-private:
+  CPPUNIT_TEST_SUITE (!!class-name!!);
+  CPPUNIT_TEST (MyNewTest);
+  CPPUNIT_TEST_SUITE_END ();
+
+ private:
 
 protected:
-
+  void MyNewTest(void);
+  
 public:
-  !!class-name!!();
-  ~!!class-name!!();
+  void setUp(void);
+  void tearDown(void);
 };
 
 #endif /* !!header-define-name!!_H */

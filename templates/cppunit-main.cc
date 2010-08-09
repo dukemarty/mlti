@@ -4,18 +4,17 @@
     
     This is the main module of your program.
 
+    
     \par Last Author: !!userinfo-fullname!! (<!!userinfo-email!!>)
     \par Date of last change:  !!actual-date!!
 
-    Revision: 0.1
-
-    \author: !!userinfo-fullname!! (<!!userinfo-email!!>)
-    \date:   !!actual-date!!
+    \author   !!userinfo-fullname!! (<!!userinfo-email!!>)
+    \date     !!actual-date!!
     \par Copyright:
-               !!userinfo-fullname!!, Chair Prof. Dillmann (IAIM)
-               Institute for Computer Science and Engineering (CSE)
-	       University of Karlsruhe. All rights reserved
-	       http://wwwiaim.ira.uka.de
+              !!userinfo-fullname!!, Chair Prof. Dillmann (IAIM)\n
+              Institute for Computer Science and Engineering (CSE)\n
+	      University of Karlsruhe. All rights reserved\n
+	      http://his.anthropomatik.kit.edu
 */
 
 

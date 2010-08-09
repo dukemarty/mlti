@@ -1,6 +1,6 @@
 # -*- python -*- coding: latin1
 #
-# Last Author: !!userinfo-fullname!! (!!userinfo-email!!)
+# Last Author: !!userinfo-fullname!! (<!!userinfo-email!!>)
 # Date of last change: !!actual-date!!
 #
 # Author: !!userinfo-fullname!! (!!userinfo-email!!)
@@ -12,7 +12,7 @@
 #	       http://wwwiaim.ira.uka.de
 #
 
-import os
+import os, glob
 
 env = Environment(ENV = os.environ)
 docbuilder = Builder(action = 'doxygen')
@@ -67,5 +67,6 @@ SConscript(subproject_scripts, exports={'BGTOOLS' : bgtoolspath,
 
 env.DoxygenDoc('docu', 'Doxyfile')
 
+Clean(!!lowercase-program-name!!, glob.glob('*~'))
 
 Default(!!lowercase-program-name!!)
