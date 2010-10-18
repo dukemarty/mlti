@@ -11,10 +11,10 @@
     \author   !!userinfo-fullname!! (<!!userinfo-email!!>)
     \date     !!actual-date!!
     \par Copyright:
-               !!userinfo-fullname!!, Chair Prof. Dillmann (IAIM)\n
-               Institute for Computer Science and Engineering (CSE)\n
-	       University of Karlsruhe. All rights reserved\n
-	       http://wwwiaim.ira.uka.de
+               !!userinfo-fullname!!, Chair Prof. Dillmann (HIS)\n
+	       Institute for Anthropomatics (IFA)\n
+	       Karlsruhe Institute of Technology (KIT). All rights reserved\n
+	       http://his.anthropomatik.kit.edu
 */
 
 #ifndef !!header-define-name!!_H
@@ -34,7 +34,7 @@
 
 
 */
-class !!class-name!! {
+class !!class-name!! : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE (!!class-name!!);
   CPPUNIT_TEST (MyNewTest);
   CPPUNIT_TEST_SUITE_END ();

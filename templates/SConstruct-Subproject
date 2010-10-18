@@ -6,10 +6,10 @@
 # Author: !!userinfo-fullname!! (!!userinfo-email!!)
 # Date: !!actual-date!!
 # Copyright:
-#              !!userinfo-fullname!!, Chair Prof. Dillmann (IAIM)\n
-#              Institute for Computer Science and Engineering (CSE)\n
-#	       University of Karlsruhe. All rights reserved\n
-#	       http://wwwiaim.ira.uka.de
+#              !!userinfo-fullname!!, Chair Prof. Dillmann (HIS)
+#              Institute for Anthropomatics (IFA)
+#	       Karlsruhe Institute of Technology (KIT). All rights reserved
+#	       http://his.anthropomatik.kit.edu
 #
 
 bgtoolspath = '/org/opt/bgtools'

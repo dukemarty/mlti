@@ -12,10 +12,10 @@
     \author: !!userinfo-fullname!! (<!!userinfo-email!!>)
     \date:   !!actual-date!!
     \par Copyright:
-               !!userinfo-fullname!!, Chair Prof. Dillmann (IAIM)
-               Institute for Computer Science and Engineering (CSE)
-	       University of Karlsruhe. All rights reserved
-	       http://wwwiaim.ira.uka.de
+               !!userinfo-fullname!!, Chair Prof. Dillmann (HIS)
+               Institute for Anthropomatics (IFA)
+	       Karlsruhe Institute of Technology (KIT). All rights reserved
+	       http://his.anthropomatik.kit.edu
 */
 
 

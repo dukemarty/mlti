@@ -9,10 +9,10 @@
 #
 #    Author:    !!userinfo-fullname!! (<!!userinfo-email!!>)
 #    Date:      !!actual-date!!
-#    Copyright: !!userinfo-fullname!!, Chair Prof. Dillmann (IAIM)
-#               Institute for Computer Science and Engineering (CSE)
-#	        University of Karlsruhe. All rights reserved
-#	        http://wwwiaim.ira.uka.de
+#    Copyright: !!userinfo-fullname!!, Chair Prof. Dillmann (HIS)
+#               Institute for Anthropomatics (IFA)\n
+#	        Karlsruhe Institute of Technology (KIT). All rights reserved\n
+#	        http://his.anthropomatik.kit.edu
 
 # TARGET: Put the name of the final executable here.
 # You can build a shared library by making this end in ".so" or a
