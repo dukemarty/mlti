@@ -19,21 +19,29 @@
 ## \namespace mltihelpers
 # This namespace contains all absolutely not project specific helper classes, for example for more comfortable input.
 
+import logging
+
 
 ## \brief Get integer in a certain range from command line.
+#
+# Additionally, a default value can be entered by simply typing enter.
 #
 # @param text command prompt shown to the user
 # @param lowerbound minimum allowed number
 # @param upperbound maximum allowed number
 # @param default default number (if just ENTER is typed)
 def getSecureInteger(text, lowerbound, upperbound, default):
+    logging.debug(" getSecureInteger() entered ...")
     choice = lowerbound - 1
     while choice<lowerbound or choice>upperbound:
         choice = raw_input(text)
+        logging.debug("   got raw input: " + choice)
         if choice=="":
+            logging.debug("   default value chosen")
             choice = default
         else:
             try:
+                logging.debug("   trying to parse input into integer")
                 choice = int(choice)
             except (VallueError):
                 choice = lowerbound - 1
@@ -46,6 +54,7 @@ def getSecureInteger(text, lowerbound, upperbound, default):
 # @param upperbound maximum allowed number
 # @param default default number (if just ENTER is typed)
 def getSecureIntegers(text, lowerbound, upperbound, default):
+    logging.debug(" getSecureIntegers() entered ...")
     res = []
     while res == []:
         choice = raw_input(text)
