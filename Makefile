@@ -11,6 +11,8 @@ mrproper:
 	@rm -f *~ *.pyc \#*\# 
 	@rm -f templates/*~ templates/\#*\#
 
+clean: mrproper
+
 realclean: mrproper
 	@rm -rf doc/
 
