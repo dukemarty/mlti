@@ -1,0 +1,43 @@
+/*! \if exist This is -*- IDL -*- from nbg \endif
+
+    \file  !!file-name!!
+    \brief 
+
+    Please put your documentation for this file here.
+
+    Last Author: !!userinfo-fullname!! (<!!userinfo-email!!>)
+    Date of last change:  !!actual-date!!
+
+    \author    !!userinfo-fullname!! (<!!userinfo-email!!>)
+    \date      !!actual-date!!
+    \par Copyright:
+               !!userinfo-fullname!!, Chair Prof. Dillmann (HIS)\n
+	       Institute for Anthropomatics (IFA)\n
+	       Karlsruhe Institute of Technology (KIT). All rights reserved\n
+	       http://his.anthropomatik.kit.edu
+*/
+
+#ifndef !!header-define-name!!_H
+#define !!header-define-name!!_H
+
+#include <nbgcorba.idl>
+
+/*!
+  \brief Put brief documentation for the module !!module-name!!
+  here. 
+
+  Put full documentation for the module !!module-name!!
+*/
+module !!module-name!!
+{
+  /*!
+    \brief Put brief documentation for the interface
+    !!module-name!!::!!class-name!! here.
+  */
+  interface !!class-name!!: nbgcorba::base
+    {
+      /* Put your interface code here. */
+    };
+};
+
+#endif // !!header-define-name!!_H

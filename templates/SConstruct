@@ -1,0 +1,72 @@
+# -*- python -*- coding: latin1
+#
+# Last Author: !!userinfo-fullname!! (<!!userinfo-email!!>)
+# Date of last change: !!actual-date!!
+#
+# Author: !!userinfo-fullname!! (!!userinfo-email!!)
+# Date: !!actual-date!!
+# Copyright:
+#              !!userinfo-fullname!!, Chair Prof. Dillmann (HIS)
+#              Institute for Anthropomatics (IFA)
+#	       Karlsruhe Institute of Technology (KIT). All rights reserved
+#	       http://his.anthropomatik.kit.edu
+#
+
+import os, glob
+
+env = Environment(ENV = os.environ)
+docbuilder = Builder(action = 'doxygen')
+env.Append(BUILDERS = {'DoxygenDoc' : docbuilder})
+
+bgtoolspath = '/org/opt/bgtools'
+
+project_cc_flags = '-Wall -Wno-non-virtual-dtor -Wno-reorder -fno-common'
+project_ld_flags = ''
+
+system_libraries = ['gcc', 'System', 'stdc++', 'SystemStubs']
+
+
+
+external_libraries = []
+project_libraries = []
+
+
+subproject_scripts = []
+subproject_paths = []
+
+program_input_files = []
+
+
+external_include_paths = []
+project_include_paths = ['.'] + subproject_paths
+
+
+external_library_paths = []
+project_library_paths = ['.'] + subproject_paths
+
+
+
+include_paths = external_include_paths + project_include_paths
+library_paths = external_library_paths + project_library_paths
+libraries_program =  system_libraries + external_libraries + project_libraries
+
+
+SConscript(subproject_scripts, exports={'BGTOOLS' : bgtoolspath,
+                                        'MYCCFLAGS' : project_cc_flags,
+                                        'MYLDFLAGS' : project_ld_flags,
+                                        'MYLIBS' : system_libraries})
+
+
+!!lowercase-program-name!! = Program('!!program-name!!', program_input_files,
+                                     CPPPATH = include_paths,
+                                     LIBPATH = library_paths,
+                                     LIBS = libraries_program,
+                                     CCFLAGS = project_cc_flags,
+                                     LINKFLAGS = project_ld_flags)
+
+
+env.DoxygenDoc('docu', 'Doxyfile')
+
+Clean(!!lowercase-program-name!!, glob.glob('*~'))
+
+Default(!!lowercase-program-name!!)
