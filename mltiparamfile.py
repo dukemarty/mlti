@@ -6,7 +6,6 @@
 #
 #    \par Last Author: Martin Loesch (<martin.loesch@@kit.edu>)
 #    \par Date of last change: Eingegebenes Datum kann nicht übernommen werden.
-Geben Sie das neue Datum ein: (TT-MM-JJ)
 #
 #    \author   Martin Loesch (loesch@ira.uka.de)
 #    \date     2008-11-18

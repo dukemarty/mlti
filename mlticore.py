@@ -225,10 +225,11 @@ class TemplateInstaller:
     #
     # @param self reference to object
     # @param template (part of) name of template which shall be installed
-    def __init__(self, template):
+    # @param template_dir "personalized" template directory
+    def __init__(self, template, template_dir):
         self.user_name = default_user_name
         self.user_email = default_user_email
-        self.template_directories = [default_template_directory]
+        self.template_directories = [template_dir, default_template_directory]
         self.paramFileValid = self.loadUserParamFile()
         self.substitutions = TemplateSubstitutions(self.user_name, self.user_email)
         self.template_name = {template:""}
