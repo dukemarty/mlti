@@ -33,7 +33,7 @@ LEVELS = {'debug': logging.DEBUG,
           'error': logging.ERROR,
           'critical': logging.CRITICAL}
 
-default_logging_level = 'debug'
+default_logging_level = 'warning'
 
 import mltihelpers 
 import mlticore
@@ -186,7 +186,7 @@ def processCommandlineArguments_getopt(argv):
         if opt in ("-d", "--debug"):
             print " Setting now new logging level: <" + arg + ">"
             log_level = arg
-    print "Log_Level will be set to: " + str(LEVELS.get(log_level, logging.NOTSET))
+#    print "Log_Level will be set to: " + str(LEVELS.get(log_level, logging.NOTSET))
     logging.basicConfig(level=LEVELS.get(log_level, logging.NOTSET))
 
     # now check for other options
