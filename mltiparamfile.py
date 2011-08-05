@@ -5,7 +5,9 @@
 #    \brief This file contains all parts of mlti which are concerned with reading, parsing and writing the private parameter file .mltirc.
 #
 #    \par Last Author: Martin Loesch (<martin.loesch@@kit.edu>)
-#    \par Date of last change: Eingegebenes Datum kann nicht übernommen werden.
+#    \par Date of last change: 05.08.2011 
+
+
 #
 #    \author   Martin Loesch (loesch@ira.uka.de)
 #    \date     2008-11-18
@@ -56,7 +58,6 @@ class FileContentError(Exception):
 #
 # Can e.g. be changed for testing purposes.
 private_parameter_file = os.path.join(os.path.expanduser("~"), ".mltirc")
-# print " Path to parameter file: " + private_parameter_file)
 
 
 ## \brief Create private parameter file with user-specific parameters (interactive!)
@@ -152,7 +153,7 @@ def createTemplateDir(template_directory, command):
 
     if do_create_dir and do_copy_templates:
         mlti_command = subprocess.Popen("which " + command, shell=True, stdout=subprocess.PIPE).communicate()[0]
-        print "found command: ", mlti_command
+        logging.info("found command: ", mlti_command)
         mlti_directory = os.path.dirname(mlti_command)
         shutil.copytree(os.path.join(mlti_directory, "templates"), template_directory)
     elif do_create_dir: # and not do_copy_templates

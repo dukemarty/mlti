@@ -5,7 +5,14 @@
 #    \brief This script installs templates for arbitrary projects or similar by copying data from a template directory and accordingly adapting some predefined variables in the files.
 #
 #    \par Last Author: Martin Loesch (<martin.loesch@@kit.edu>)
-#    \par Date of last change: Eingegebenes Datum kann nicht übernommen werden.
+#    \par Date of last change: 05.08.2011 
+
+
+
+
+
+
+
 #
 #    \author   Martin Loesch (<loesch@@ira.uka.de>)
 #    \date     12.11.08
@@ -251,12 +258,14 @@ def checkOperability(template_name, target_name, target_dir, template_dir):
     
     
 def handleParamFileProblem():
-    logging.info("Fixing problems with parameter file...")
-    createUserParamFile()
+    logging.info("Handling problems with parameter file...")
+    doCreateParamFile = mltihelpers.getYesOrNo("Private parameter file does not exists, shall one be generated? ")
+    if doCreateParamFile:
+        mltiparamfile.createUserParamFile()
 
 def handleTemplateDirProblem(directory):
-    print "Fixing problems with missing template directory..."
-    createTemplateDir(directory, sys.argv[0])
+    logging.info("Handling problems with missing template directory...")
+    mltiparamfile.createTemplateDir(directory, sys.argv[0])
         
 ## TRUE MAIN PROGRAM
 #
