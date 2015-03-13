@@ -1,11 +1,11 @@
-#! /usr/bin/python
+#! /opt/macports2/bin/python
 # This is -*- Python -*- from nbg -*- coding: latin1 -*-
 #
 ##   \file  mlti.py
 #    \brief This script installs templates for arbitrary projects or similar by copying data from a template directory and accordingly adapting some predefined variables in the files.
 #
 #    \par Last Author: Martin Loesch (<martin.loesch@@kit.edu>)
-#    \par Date of last change: 05.08.2011 
+#    \par Date of last change: 25.07.12
 
 
 
@@ -29,10 +29,10 @@
 import sys, os
 import logging
 
-if sys.version_info < (2,7):
-    import getopt
-else:
-    import argparse
+#if sys.version_info < (2.7):
+import getopt
+#else:
+#    import argparse
 
 LEVELS = {'debug': logging.DEBUG,
           'info': logging.INFO,
@@ -200,10 +200,13 @@ def processCommandlineArguments_getopt(argv):
     for opt, arg in optlist:
         logging.info(" Iterating optlist, current = (" + opt + " , " + arg + ")")
         if opt in ("-l", "--list"):
+            logging.info(" --list parameter given, so return empty string to control.")
             return ("", "", "", "")
         elif opt in ("-p", "--path"):
             template_dir = arg
-        
+
+    logging.info("Finished iterating optlist")
+            
     # finally, process arguments
     logging.info(" Number of arguments: " + str(len(arglist)))
 
@@ -233,10 +236,10 @@ def processCommandlineArguments_getopt(argv):
 # Set missing arguments to default values, or exit if not all necessary arguments were given.
 def processCommandlineArguments(argv):
 
-    if sys.version_info < (2,7):
-        res = processCommandlineArguments_getopt(argv)
-    else:
-        res = processCommandlineArguments_argparse(argv)
+#    if sys.version_info < (2.7):
+    res = processCommandlineArguments_getopt(argv)
+#    else:
+#        res = processCommandlineArguments_argparse(argv)
 
     return res
 
