@@ -5,7 +5,7 @@
 #    \brief This file contains all parts of mlti which are concerned with reading, parsing and writing the private parameter file .mltirc.
 #
 #    \par Last Author: Martin Loesch (<martin.loesch@@kit.edu>)
-#    \par Date of last change: 05.08.2011 
+#    \par Date of last change: 25.07.12
 
 
 #
@@ -119,9 +119,10 @@ def loadUserParamFile():
         self.template_directories = []
         ## \todo Müsste ich hier noch die template_directories direkt fertig parsen?
         for line in fileinput.input(pathtofile):
-            param, arg = self.parseParamFileLine(line)
+            param, arg = parseParamFileLine(line)
             logging.debug(" Parsed parameter file line:  " + param + " -> " + arg)
-            parameter_list[param] = arg
+            if param:
+                parameter_list[param] = arg
         fileinput.close()
         return parameter_list
     else:
@@ -135,7 +136,11 @@ def loadUserParamFile():
 # @return tuple: (parameter name, parameter value)
 def parseParamFileLine(line):
     parts = line.split("=")
-    return (parts[0].strip(), parts[1].strip())
+    logging.debug(" Parsed line: " + str(parts))
+    if len(parts) != 2:
+        return (None, None)
+    else:
+        return (parts[0].strip(), parts[1].strip())
 
 ## \brief Check existence of the private parameter file.
 def existsPrivateParameterFile():
