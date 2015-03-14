@@ -10,10 +10,9 @@
 #    \author   !!userinfo-fullname!! (!!userinfo-email!!)
 #    \date     !!actual-date!!
 #    \par Copyright:
-#              !!userinfo-fullname!!, Chair Prof. Dillmann (HIS)\n
-#              Institute for Anthropomatics (IFA)\n
-#	       Karlsruhe Institute of Technology (KIT). All rights reserved\n
-#	       http://his.anthropomatik.kit.edu
+#              !!userinfo-fullname!!\n
+#	       All rights reserved\n
+#	       http://YOURHOMEPAGE
 #
 
 
